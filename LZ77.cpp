@@ -123,5 +123,6 @@ int main() {
                 cout << "Invalid input\n";
         }
         system("pause");
+        cout << "\n";
     }
 }
