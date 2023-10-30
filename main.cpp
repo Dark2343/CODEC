@@ -19,14 +19,14 @@ int main() {
         return 1;
     }
 
-    std::string inputText((istreambuf_iterator<char>(inputFile)), istreambuf_iterator<char>());
+    string inputText((istreambuf_iterator<char>(inputFile)), istreambuf_iterator<char>());
     inputFile.close();
 
     // Compression
     vector<LZ77Token> compressedData = compressor.Compress(inputText);
 
     // Writing compressed data to an output file
-    std::ofstream compressedFile("compressed.lz77");
+    ofstream compressedFile("compressed.lz77");
     for (const LZ77Token& token : compressedData) {
         compressedFile << token.offset << " " << token.length << " " << token.nextChar << " ";
     }
@@ -47,6 +47,29 @@ int main() {
     ofstream outputDecompressedFile("output.txt");
     outputDecompressedFile << decompressedText;
     outputDecompressedFile.close();
+
+    while (true){
+        cout << "Welcome the LZ77 Compression Algorithm Menu : "<<endl;
+        cout << "1 - input a string "<<endl;
+        cout << "2- compress"<<endl;
+        cout << "3- decompress"<<endl;
+        cout << "4- exit"<<endl;
+        int choice;
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                cout << "enter your string :" << endl;
+                getline(cin,inputText);
+                break;
+            case 2:
+                compressedData = compressor.Compress(inputText);
+                break;
+            case 3:
+                decompressedText = compressor.Decompress(compressedTokens);
+                break;
+        }
+    }
+
 
     return 0;
 }
