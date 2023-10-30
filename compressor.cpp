@@ -20,7 +20,13 @@ vector<LZ77Token> Compressor::Compress(const string& input) {
 
 string Compressor::Decompress(const vector<LZ77Token>& compressedData) {
     // Implement the decompression logic here
-    string decompressed;
-    // ...
-    return decompressed;
+    string decompressedData;
+    for (const LZ77Token& token : compressedData){
+        if (token.length == 0){
+            decompressedData += token.nextChar;
+        }
+        decompressedData.substr(decompressedData.size()-token.offset,decompressedData.size()-token.offset+token.length);
+        decompressedData += token.nextChar;
+    }
+    return decompressedData;
 }
