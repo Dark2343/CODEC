@@ -71,8 +71,7 @@ int main() {
         cout << "1- Compress Input\n";
         cout << "2- Decompress Input\n";
         cout << "3- Compress File\n";
-        cout << "4- Decompress File\n";
-        cout << "5- Exit\n";
+        cout << "4- Exit\n";
         
         int choice;
         cin >> choice;
@@ -96,7 +95,7 @@ int main() {
                 cout << "Enter File Name: \n";
                 cin.getline(fileName, 100);
                 strcat(fileName, ".txt");
-                file.open(fileName, ios::in);
+                file.open(fileName, ios::in); // read
 
                 if(file.is_open()){
                     input.assign((istreambuf_iterator<char>(file)),(istreambuf_iterator<char>()));
@@ -119,27 +118,6 @@ int main() {
 
                 break;
             case 4:
-                cout << "Enter File Name: \n";
-
-                strcat(fileName, "txt");
-                cin.getline(fileName, 100);
-                file.open(fileName, ios::in);
-
-                if(file.is_open()){
-                    input.assign((istreambuf_iterator<char>(file)),(istreambuf_iterator<char>()));
-                }
-                
-                decompressedText = decompress(compressedData);
-
-                file.open(fileName,ios::out); // write
-
-                if(file.is_open()){
-                    file << decompressedText;
-                    file.close();
-                }
-                break;
-                
-            case 5:
                 exit(0);
             default:
                 cout << "Invalid input\n";
