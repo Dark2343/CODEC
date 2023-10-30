@@ -50,15 +50,16 @@ int main() {
 
     while (true){
         cout << "Welcome the LZ77 Compression Algorithm Menu : "<<endl;
-        cout << "1 - input a string "<<endl;
-        cout << "2- compress"<<endl;
-        cout << "3- decompress"<<endl;
-        cout << "4- exit"<<endl;
+        cout << "1-Input a string "<<endl;
+        cout << "2-Compress"<<endl;
+        cout << "3-Decompress"<<endl;
+        cout << "4-Exit"<<endl;
+        
         int choice;
         cin >> choice;
         switch (choice) {
             case 1:
-                cout << "enter your string :" << endl;
+                cout << "Enter string :" << endl;
                 getline(cin,inputText);
                 break;
             case 2:
@@ -67,6 +68,10 @@ int main() {
             case 3:
                 decompressedText = compressor.Decompress(compressedTokens);
                 break;
+            case 4:
+                exit(0);
+            default:
+                cout << "Invalid input\n";
         }
 
     }

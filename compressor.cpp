@@ -12,9 +12,33 @@ Compressor::Compressor(int windowSize, int lookAheadBufferSize)
 }
 
 vector<LZ77Token> Compressor::Compress(const string& input) {
-    // Implement the compression logic here
     vector<LZ77Token> compressedData;
-    // ...
+    int inputSize = input.size();
+    int currentIndex = 0;
+
+    while (currentIndex < inputSize) {
+        LZ77Token token;
+        token.length = 0;
+        token.offset = 0;
+        token.nextChar = input[currentIndex];
+
+        for (int searchIndex = currentIndex - 1; searchIndex >= 0; searchIndex--) {
+            int matchLength = 0;
+            while (currentIndex + matchLength < inputSize && input[searchIndex + matchLength] == input[currentIndex + matchLength]) {
+                matchLength++;
+            }
+
+            if (matchLength > token.length) {
+                token.length = matchLength;
+                token.offset = currentIndex - searchIndex;
+                token.nextChar = input[currentIndex + matchLength];
+            }
+        }
+
+        compressedData.push_back(token);
+        currentIndex += token.length + 1;
+    }
+
     return compressedData;
 }
 
