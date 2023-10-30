@@ -42,15 +42,19 @@ vector<LZ77Token> compress(const string& input) {
 }
 
 string decompress(const vector<LZ77Token>& compressedData) {
-    string decompressedData;
-    for (const LZ77Token& token : compressedData){
-        if (token.length == 0){
-            decompressedData += token.nextChar;
+    string decompressed;
+    for (const LZ77Token& token : compressedData) {
+        if (token.length == 0) {
+            decompressed += token.nextChar;
+        } else {
+            int startIndex = decompressed.size() - token.offset;
+            for (int i = 0; i < token.length; i++) {
+                decompressed += decompressed[startIndex + i];
+            }
+            decompressed += token.nextChar;
         }
-        decompressedData.substr(decompressedData.size()-token.offset,decompressedData.size()-token.offset+token.length);
-        decompressedData += token.nextChar;
     }
-    return decompressedData;
+    return decompressed;
 }
 
 int main() {
@@ -66,19 +70,19 @@ int main() {
         
         int choice;
         cin >> choice;
+        cin.ignore();
         switch (choice) {
             case 1:
-                cout << "Input text:\n" << endl;
+                cout << "Input text:" << endl;
                 getline(cin,inputText);
                 compressedData = compress(inputText);
                 
                 for (const LZ77Token& token : compressedData) {
                     cout << "<" << token.offset << "," << token.length << "," << token.nextChar << ">";
                 }
+                cout << endl;
                 break;
             case 2:
-                cout << "Input text:\n" << endl;
-                getline(cin,inputText);
                 decompressedText = decompress(compressedData);
                 cout << "Decompressed Text: " << decompressedText << endl;
                 break;
@@ -87,5 +91,6 @@ int main() {
             default:
                 cout << "Invalid input\n";
         }
+        system("pause");
     }
 }
