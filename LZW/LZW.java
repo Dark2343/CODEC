@@ -4,7 +4,27 @@ import java.util.*;
 public class LZW {
 
     public static void compress(String inputFileName, String outputFileName) throws IOException {
-        //implement this function aboos edek yasta
+        String text = readFile(inputFileName);
+        Map<String, Integer> dictionary = createDictionary();
+        int code = 256;
+
+        List<Integer> compressedData = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+
+        for (char c : text.toCharArray()) {
+            current.append(c);
+            if (!dictionary.containsKey(current.toString())) {
+
+                compressedData.add(dictionary.get(current.substring(0, current.length() - 1)));
+                dictionary.put(current.toString(), code);
+                code++;
+
+                current = new StringBuilder(String.valueOf(c));
+            }
+        }
+
+        compressedData.add(dictionary.get(current.toString()));
+        writeCompressedData(outputFileName, compressedData);
     }
 
     public static void decompress(String inputFileName, String outputFileName) throws IOException {
