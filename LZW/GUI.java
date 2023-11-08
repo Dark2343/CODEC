@@ -1,21 +1,20 @@
-import java.awt.event.ActionListener;
 import java.io.File;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
+import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-import java.awt.Font;
+import javax.swing.JFrame;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 public class GUI implements ActionListener {
     File textFile;
     JPanel panel= new JPanel();
-    JLabel textLabel = new JLabel();
     JButton select = new JButton();
+    JLabel textLabel = new JLabel();
     JButton compress = new JButton();
     JButton decompress = new JButton();
     JFrame frame = new JFrame("Codec");
@@ -59,29 +58,37 @@ public class GUI implements ActionListener {
     
     public void actionPerformed(ActionEvent actionEvent){
         if (actionEvent.getActionCommand().equals("Select File")) {
-            selectFile();
-            compress.setVisible(true);
-            decompress.setVisible(true);
-            textLabel.setText("File selected: " + textFile.getName());
+            if (selectFile()) {
+                compress.setVisible(true);
+                decompress.setVisible(true);
+                textLabel.setText("File selected: " + textFile.getName());
+            }
         }
         else if (actionEvent.getActionCommand().equals("Compress")) {
-            
+            // Compress
+            // Check if there are no errors
             textLabel.setBounds(145, 50, 250, 60);
             textLabel.setText("Compression completed");
         }
         else if (actionEvent.getActionCommand().equals("Decompress")) {
-            
+            // Decompress
+            // Check if there are no errors
             textLabel.setBounds(140, 50, 250, 60);
             textLabel.setText("Decompression completed");
         }
     }
 
-    public void selectFile(){
+    public Boolean selectFile(){
         fileChooser.setFileFilter(filter);
+        fileChooser.setApproveButtonText("Select");
         int returnVal = fileChooser.showOpenDialog(fileChooser);
+
+        // If you press "Select"
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             textFile = fileChooser.getSelectedFile();
+            return true;
         }
+        return false;
     }
 
     public static void main(String[] args){
