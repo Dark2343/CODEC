@@ -72,7 +72,7 @@ public class GUI implements ActionListener {
                 textLabel.setText("Compression completed");
             }
             catch(Exception e){
-                textLabel.setBounds(145, 50, 250, 60);
+                textLabel.setBounds(200, 50, 250, 60);
                 textLabel.setText("File Error");
             }
         }
@@ -83,7 +83,7 @@ public class GUI implements ActionListener {
                 textLabel.setText("Decompression completed");
             }
             catch(Exception e){
-                textLabel.setBounds(145, 50, 250, 60);
+                textLabel.setBounds(200, 50, 250, 60);
                 textLabel.setText("File Error");
             }
         }
