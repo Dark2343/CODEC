@@ -12,6 +12,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class GUI implements ActionListener {
     File textFile;
+    LZW LZW = new LZW();
     JPanel panel= new JPanel();
     JButton select = new JButton();
     JLabel textLabel = new JLabel();
@@ -65,16 +66,26 @@ public class GUI implements ActionListener {
             }
         }
         else if (actionEvent.getActionCommand().equals("Compress")) {
-            // Compress
-            // Check if there are no errors
-            textLabel.setBounds(145, 50, 250, 60);
-            textLabel.setText("Compression completed");
+            try{
+                LZW.compress(textFile);
+                textLabel.setBounds(145, 50, 250, 60);
+                textLabel.setText("Compression completed");
+            }
+            catch(Exception e){
+                textLabel.setBounds(145, 50, 250, 60);
+                textLabel.setText("File Error");
+            }
         }
         else if (actionEvent.getActionCommand().equals("Decompress")) {
-            // Decompress
-            // Check if there are no errors
-            textLabel.setBounds(140, 50, 250, 60);
-            textLabel.setText("Decompression completed");
+            try{
+                LZW.decompress(textFile);
+                textLabel.setBounds(140, 50, 250, 60);
+                textLabel.setText("Decompression completed");
+            }
+            catch(Exception e){
+                textLabel.setBounds(145, 50, 250, 60);
+                textLabel.setText("File Error");
+            }
         }
     }
 
