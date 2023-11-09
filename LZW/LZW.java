@@ -9,18 +9,14 @@ public class LZW{
     HashMap<String, Integer> dictionary = new HashMap<>();
     HashMap<Integer, String> reverseDictionary = new HashMap<>();
     ArrayList<Integer> compressedData = new ArrayList<>();
-    String textString = new String();
 
     public void compress(File textFile) throws Exception {
         try{
-            readFile(textFile);
+            String content = readFile(textFile);
             createDictionary();
-            StringBuilder content = new StringBuilder(textString);
             StringBuilder substring = new StringBuilder();
-            substring.append(content.charAt(0));
-            content.deleteCharAt(0);
 
-            for(char c : textString.toCharArray()){
+            for(char c : content.toCharArray()){
                 if (dictionary.containsKey(substring.toString())) {
                     substring.append(c);
                 }
@@ -59,13 +55,15 @@ public class LZW{
         }
     }
     
-    private void readFile(File textFile) throws Exception {
+    private String readFile(File textFile) throws Exception {
         try {
+            String content = new String();
             Scanner reader = new Scanner(textFile);
             while (reader.hasNextLine()) {
-                textString += reader.nextLine();
+                content += reader.nextLine();
             }
             reader.close();
+            return content;
         } catch (Exception e) {throw e;}
     }
 
