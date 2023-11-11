@@ -1,6 +1,5 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,22 +15,38 @@ public class LZW{
 
     public void compress(File textFile) throws Exception {
         try{
+            // First read all file contents
             String content = readTextFile(textFile);
+            // Then we create the 256 char dictionary
             createDictionary();
-            StringBuilder substring = new StringBuilder();
+            // We initialize an empty string to store the current string of chars found in the dictionary
+            String substring = "";
 
+            // We loop over the file's content
             for(char c : content.toCharArray()){
-                if (dictionary.containsKey(substring.toString())) {
-                    substring.append(c);
+                // We make a variable to store the current char + the string we built before
+                String mix = substring + c;
+                // if the dict contains the mix, then we store it as the new existing string
+                if (dictionary.containsKey(mix)) {
+                    substring = mix;
                 }
                 else{
-                    dictionary.put(substring.toString(), dictionary.size());
-                    substring.deleteCharAt(substring.length() - 1);
-                    compressedData.add(dictionary.get(substring.toString()));
-                    substring.delete(0, substring.length() - 1);
-                    substring.append(c);
+                    // Otherwise, we store the value of that string in the compressed data
+                    compressedData.add(dictionary.get(substring));
+                    // And we store the mix we found in the dict along with the dict size
+                    dictionary.put(mix, dictionary.size());
+                    // Then we reset the string to our current char to compare it with the next char in the following iteration
+                    substring = String.valueOf(c);
                 }
             }
+
+            // At the end of the loop, if the substring is not empty, that means that it contains a string found in the dict
+            if (!substring.isEmpty()) {
+                // So we store this string in the compressed data
+                compressedData.add(dictionary.get(substring));
+            }
+
+            // Then we write all that to the file
             writeCompressedFile(compressedData, textFile.getName());
         }
         catch (Exception e) {throw e;}
@@ -65,8 +80,7 @@ public class LZW{
 
     private void createDictionary(){
         for (int i = 0; i < 256; i++) {
-            Character c = (char)(i);
-            dictionary.put(Character.toString(c), i);
+            dictionary.put(String.valueOf((char)(i)), i);
         }
     }
 
@@ -112,7 +126,6 @@ public class LZW{
         } catch (Exception e) {throw e;}
 
     }
-
 
     private void writeDecompressedFile(String decompressedData, String name) throws IOException{
         FileWriter output = new FileWriter("Decompressed" + name);
