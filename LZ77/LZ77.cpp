@@ -32,7 +32,7 @@ vector<Token> compress(const string& input) {
             if (matchLength > token.length) {
                 token.length = matchLength;
                 token.offset = currentIndex - searchIndex;
-                token.nextChar = input[currentIndex + matchLength];
+                token.nextChar = input[currentIndex + matchLength]; // ASK ABOUT THIS
             }
         }
 
@@ -116,6 +116,7 @@ int main() {
                     file.close();
                 }
 
+                cout << "File compressed successfully :)\n";
                 break;
             case 4:
                 exit(0);

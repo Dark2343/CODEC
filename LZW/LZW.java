@@ -9,16 +9,14 @@ import java.util.List;
 import java.util.Scanner;
 
 public class LZW{
-    HashMap<String, Integer> dictionary = new HashMap<>();
-    HashMap<Integer, String> reverseDictionary = new HashMap<>();
-    ArrayList<Integer> compressedData = new ArrayList<>();
-
+    
     public void compress(File textFile) throws Exception {
         try{
+            ArrayList<Integer> compressedData = new ArrayList<>();
             // First read all file contents
             String content = readTextFile(textFile);
             // Then we create the 256 char dictionary
-            createDictionary();
+            HashMap<String, Integer> dictionary = createDictionary();
             // We initialize an empty string to store the current string of chars found in the dictionary
             String substring = "";
 
@@ -55,7 +53,7 @@ public class LZW{
     public void decompress(File textFile) throws Exception {
         try{
             List<Integer> compressedData = readCompressedFile(textFile);
-            createReverseDictionary();
+            HashMap<Integer, String> reverseDictionary = createReverseDictionary();
             StringBuilder decompressedText = new StringBuilder();
             int initialCode = compressedData.remove(0);
             String current = reverseDictionary.get(initialCode);
@@ -73,21 +71,25 @@ public class LZW{
                 reverseDictionary.put(reverseDictionary.size(), current + entry.charAt(0));
                 current = entry;
             }
-            writeDecompressedFile(decompressedText.toString() , textFile.getName());
+            writeDecompressedFile(decompressedText.toString());
 
         } catch (Exception e) {throw e;}
     }
 
-    private void createDictionary(){
+    private HashMap<String, Integer> createDictionary(){
+        HashMap<String, Integer> dictionary = new HashMap<>();
         for (int i = 0; i < 256; i++) {
             dictionary.put(String.valueOf((char)(i)), i);
         }
+        return dictionary;
     }
 
-    private void createReverseDictionary(){
+    private HashMap<Integer, String> createReverseDictionary(){
+        HashMap<Integer, String> reverseDictionary = new HashMap<>();
         for (int i = 0; i < 256; i++) {
            reverseDictionary.put(i, String.valueOf((char) i));
         }
+        return reverseDictionary;
     }
 
     private String readTextFile(File textFile) throws Exception {
@@ -112,6 +114,7 @@ public class LZW{
     private  List<Integer> readCompressedFile(File textFile) throws Exception {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(textFile));
+            ArrayList<Integer> compressedData = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] codes = line.split(" ");
@@ -127,8 +130,8 @@ public class LZW{
 
     }
 
-    private void writeDecompressedFile(String decompressedData, String name) throws IOException{
-        FileWriter output = new FileWriter("Decompressed" + name);
+    private void writeDecompressedFile(String decompressedData) throws IOException{
+        FileWriter output = new FileWriter("DecompressedData.txt");
         output.write(decompressedData);
         output.close();
     }
