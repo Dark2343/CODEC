@@ -64,12 +64,29 @@ public class Huffman {
         buildHuffmanTree();
     }
 
-    public void decompress(File textFile){
-
+    /**
+     * @param root Root of the tree
+     * @param compressedText Compressed text
+     * @return Decompressed text
+     * @author Ziad Karson
+     */
+    public String decompress(Node root, String compressedText){
+        Node temp = root;
+        StringBuilder decompressedText = new StringBuilder();
+        for (int i = 0; i < compressedText.length(); i++) {
+            if(compressedText.charAt(i) == '0'){
+                temp = temp.left;
+            }
+            else{
+                temp = temp.right;
+            }
+            if(temp.left == null && temp.right == null){
+                decompressedText.append(temp.character);
+                temp = root;
+            }
+        }
+        return decompressedText.toString();
     }
-    
-}
-
 class Node{
     String character;
     int frequency;
