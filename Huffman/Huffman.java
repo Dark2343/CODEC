@@ -87,6 +87,8 @@ public class Huffman {
         }
         return decompressedText.toString();
     }
+}
+
 class Node{
     String character;
     int frequency;
