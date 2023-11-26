@@ -1,16 +1,17 @@
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import javax.xml.stream.events.EndDocument;
+import java.io.*;
+import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class Huffman {
-
+    BitReader bitReader;
     Node root;
     ArrayList<Node> frequencyTable = new ArrayList<Node>();
-    HashMap<Character, Integer> codedTable = new HashMap<Character, Integer>();
+    HashMap<Character, String> codedTable = new HashMap<>();
+    HashMap<String, Character> invertedCodedTable = new HashMap<>();
 
     public void buildFrequencyTable(File textFile){
         try{
@@ -66,7 +67,7 @@ public class Huffman {
 
     public void buildCodedTable(Node root, String code){
         if(root.left == null && root.right == null){
-            codedTable.put(root.character.charAt(0), Integer.parseInt(code));
+            codedTable.put(root.character.charAt(0), code);
         }
         else{
             buildCodedTable(root.left, code + "0");
@@ -77,10 +78,11 @@ public class Huffman {
     public void readTextFile(File textFile){
         try{
             Scanner scanner = new Scanner(textFile);
+            StringBuilder data = new StringBuilder();
             while(scanner.hasNextLine()){
-                String line = scanner.nextLine();
-                writeCodedFile(line);
+                data.append(scanner.nextLine());
             }
+            writeCodedFile(data.toString());
             scanner.close();
         }
         catch(Exception e){
@@ -88,14 +90,15 @@ public class Huffman {
         }
     }
 
-    public void writeCodedFile(String line) throws IOException {
+    public void writeCodedFile(String text) throws IOException {
+        // TODO: Add tree to beginning of file
         File file = new File("CompressedData.txt");
         FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
         BufferedWriter bw = new BufferedWriter(fw);
         StringBuilder data = new StringBuilder();
 
-        for (int i = 0; i < line.length(); i++) {
-            data.append(codedTable.get(line.charAt(i)));
+        for (int i = 0; i < text.length(); i++) {
+            data.append(codedTable.get(text.charAt(i)));
         }
 
         bw.write(data.toString());
@@ -112,28 +115,80 @@ public class Huffman {
         readTextFile(textFile);
     }
 
-    /**
-     * @param root Root of the tree
-     * @param compressedText Compressed text
-     * @return Decompressed text
-     * @author Ziad Karson
-     */
+
     public void decompress(File textFile){
-        // Node temp = root;
-        // StringBuilder decompressedText = new StringBuilder();
-        // for (int i = 0; i < compressedText.length(); i++) {
-        //     if(compressedText.charAt(i) == '0'){
-        //         temp = temp.left;
-        //     }
-        //     else{
-        //         temp = temp.right;
-        //     }
-        //     if(temp.left == null && temp.right == null){
-        //         decompressedText.append(temp.character);
-        //         temp = root;
-        //     }
-        // }
-        // return decompressedText.toString();
+        try {
+            BitReader bitReader = new BitReader(new FileInputStream(textFile));
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: " + e);
+        }
+        readCodedFile(textFile);
+        String textString = decompressCode();
+        writeTextFile(textString);
+        
+    }
+
+    private void writeTextFile(String textString) {
+        try{
+            File file = new File("DecompressedData.txt");
+            FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(textString);
+            bw.close();
+            fw.close();
+        }
+        catch(Exception e){
+            System.out.println("Error: " + e);
+        }
+    }
+
+    private String decompressCode() {
+        StringBuilder textString = new StringBuilder();
+        StringBuilder code = new StringBuilder();
+        while(bitReader.hasNextBit()){
+            code.append(bitReader.readBit());
+            if(invertedCodedTable.containsKey(code.toString())){
+                textString.append(invertedCodedTable.get(code.toString()));
+                code = new StringBuilder();
+            }
+        }
+        return textString.toString();
+    }
+
+    private void readCodedFile(File codedFile) {
+        // Builds tree
+        rebuildHuffmanTree(codedFile);
+        // then codedTable
+        buildCodedTable(root, "");
+        this.invertedCodedTable = invertCodedTable();
+    }
+
+    private HashMap<String, Character> invertCodedTable() {
+        HashMap<String, Character> invertedTable = new HashMap<>();
+        for (Character key : codedTable.keySet()) {
+            invertedTable.put(codedTable.get(key), key);
+        }
+        return invertedTable;
+    }
+
+    private void rebuildHuffmanTree(File codedFile) {
+        this.root = readNode();
+    }
+
+    private Node readNode() {
+        // If byte is 1 it means it's a leaf node
+        if(bitReader.readBit()){
+
+            String character = String.valueOf((char) bitReader.readByte());
+
+            return new Node(character, 1);
+        }
+        else{
+
+            Node left = readNode();
+            Node right = readNode();
+            return new Node("", 0, left, right);
+        }
     }
 }
 
@@ -153,5 +208,49 @@ class Node{
         this.frequency = frequency;
         this.left = left;
         this.right = right;
+    }
+}
+
+class BitReader{
+    InputStream inputStream;
+    BitSet bitSet = new BitSet();
+    int index = 0;
+    int size = 0;
+
+    public BitReader(InputStream inputStream){
+        this.inputStream = inputStream;
+    }
+
+    public boolean readBit() throws IndexOutOfBoundsException {
+        if(index == size){
+            try{
+                // Read next byte
+                int data = inputStream.read();
+                // If end of file, return 0
+                if(data == -1){
+                    throw new IndexOutOfBoundsException("End of file in BitReader");
+                }
+                bitSet = BitSet.valueOf(new byte[]{(byte)data});
+                size = bitSet.length();
+                index = 0;
+            }
+            catch(Exception e){
+                System.out.println("Error: " + e);
+            }
+        }
+        return bitSet.get(index++);
+    }
+
+    public boolean hasNextBit(){
+        return index < size;
+    }
+
+    public byte readByte(){
+        BitSet bits = new BitSet();
+        for(int i = 0; i < 8; i++){
+            bits.set(i, bitSet.get(index));
+            index++;
+        }
+        return bits.toByteArray()[0];
     }
 }
