@@ -10,7 +10,7 @@ public class Huffman {
 
     Node root;
     ArrayList<Node> frequencyTable = new ArrayList<Node>();
-    HashMap<Character, Integer> codedTable = new HashMap<Character, Integer>();
+    HashMap<Character, Byte> codedTable = new HashMap<Character, Byte>();
 
     public void buildFrequencyTable(File textFile){
         try{
@@ -66,7 +66,7 @@ public class Huffman {
 
     public void buildCodedTable(Node root, String code){
         if(root.left == null && root.right == null){
-            codedTable.put(root.character.charAt(0), Integer.parseInt(code));
+            codedTable.put(root.character.charAt(0), Byte.parseByte(code));
         }
         else{
             buildCodedTable(root.left, code + "0");
@@ -99,7 +99,6 @@ public class Huffman {
         }
 
         bw.write(data.toString());
-        bw.newLine();
 
         bw.close();
         fw.close();
