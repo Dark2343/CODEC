@@ -83,6 +83,7 @@ public class GUI implements ActionListener {
                 textLabel.setText("Decompression completed");
             }
             catch(Exception e){
+                e.printStackTrace();
                 textLabel.setBounds(200, 50, 250, 60);
                 textLabel.setText("File Error");
             }
