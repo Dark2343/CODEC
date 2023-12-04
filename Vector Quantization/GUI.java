@@ -11,7 +11,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 public class GUI implements ActionListener {
-    File textFile;
+    File imageFile;
     VQ vq = new VQ();
     JPanel panel= new JPanel();
     JButton select = new JButton();
@@ -20,7 +20,7 @@ public class GUI implements ActionListener {
     JButton decompress = new JButton();
     JFrame frame = new JFrame("Codec");
     JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir")); // GUI to select files
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt", "tx"); // Filter to choose specific files only
+    FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "png", "jpg", "jpeg"); // Filter to choose specific files only
     
     public GUI(){
         panel.setLayout(null);
@@ -62,12 +62,12 @@ public class GUI implements ActionListener {
             if (selectFile()) {
                 compress.setVisible(true);
                 decompress.setVisible(true);
-                textLabel.setText("File selected: " + textFile.getName());
+                textLabel.setText("File selected: " + imageFile.getName());
             }
         }
         else if (actionEvent.getActionCommand().equals("Compress")) {
             try{
-                vq.compress(textFile);
+                vq.compress(imageFile);
                 textLabel.setBounds(145, 50, 250, 60);
                 textLabel.setText("Compression completed");
             }
@@ -78,7 +78,7 @@ public class GUI implements ActionListener {
         }
         else if (actionEvent.getActionCommand().equals("Decompress")) {
             try{
-                vq.decompress(textFile);
+                vq.decompress(imageFile);
                 textLabel.setBounds(140, 50, 250, 60);
                 textLabel.setText("Decompression completed");
             }
@@ -97,7 +97,7 @@ public class GUI implements ActionListener {
 
         // If you press "Select"
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            textFile = fileChooser.getSelectedFile();
+            imageFile = fileChooser.getSelectedFile();
             return true;
         }
         return false;
