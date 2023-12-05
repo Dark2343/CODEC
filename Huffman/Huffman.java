@@ -7,7 +7,7 @@ public class Huffman {
     HashMap<Character, String> codedTable = new HashMap<>();
     HashMap<String, Character> invertedCodedTable = new HashMap<>();
 
-    public void buildFrequencyTable(File textFile){
+    public void BuildFrequencyTable(File textFile){
         try{
             Scanner scanner = new Scanner(textFile);
             while(scanner.hasNextLine()){
@@ -43,7 +43,7 @@ public class Huffman {
         frequencyTable.sort((Node n1, Node n2) -> n1.frequency - n2.frequency);
     }
 
-    public void buildHuffmanTree(){
+    public void BuildHuffmanTree(){
         while (frequencyTable.size() != 1) {
             Node n1 = frequencyTable.get(0);
             Node n2 = frequencyTable.get(1);
@@ -59,17 +59,17 @@ public class Huffman {
         root = frequencyTable.get(0);
     }
 
-    public void buildCodedTable(Node root, String code){
+    public void BuildCodedTable(Node root, String code){
         if(root.left == null && root.right == null){
             codedTable.put(root.character.charAt(0), code);
         }
         else{
-            buildCodedTable(root.left, code + "0");
-            buildCodedTable(root.right, code + "1");
+            BuildCodedTable(root.left, code + "0");
+            BuildCodedTable(root.right, code + "1");
         }
     }
 
-    public void readTextFile(File textFile){
+    public void ReadToWriteText(File textFile){
         try{
             Scanner scanner = new Scanner(textFile);
             StringBuilder data = new StringBuilder();
@@ -86,27 +86,27 @@ public class Huffman {
 
     public void writeCodedFile(String text) throws IOException {
         writeHuffmanTree();
-        DataOutputStream dataOut = new DataOutputStream(new FileOutputStream("CompressedData.bin", true));
-        StringBuilder data = new StringBuilder();
-        for (int i = 0; i < text.length(); i++) {
-            data.append(codedTable.get(text.charAt(i)));
-        }
-        String dataStr = data.toString();
-        dataOut.writeShort(dataStr.length());
-
-        for (int i = 0; i < dataStr.length(); i+=8) {
-            String byteStr = dataStr.substring(i, Math.min(i + 8, dataStr.length()));
-
-            while (byteStr.length() < 8) {
-                byteStr += "0";
+        try(DataOutputStream dataOut = new DataOutputStream(new FileOutputStream("CompressedData.bin", true))){
+                StringBuilder data = new StringBuilder();
+                for (int i = 0; i < text.length(); i++) {
+                data.append(codedTable.get(text.charAt(i)));
             }
-            int dataByte = Integer.parseInt(byteStr, 2);
-            dataOut.write(dataByte);
+            String dataStr = data.toString();
+            dataOut.writeShort(dataStr.length());
+
+            for (int i = 0; i < dataStr.length(); i+=8) {
+                String byteStr = dataStr.substring(i, Math.min(i + 8, dataStr.length()));
+
+                while (byteStr.length() < 8) {
+                    byteStr += "0";
+                }
+                int dataByte = Integer.parseInt(byteStr, 2);
+                dataOut.write(dataByte);
+            }
         }
     }
     private void writeHuffmanTree() {
-        try{
-            DataOutputStream dataOut = new DataOutputStream(new FileOutputStream("CompressedData.bin"));
+        try(DataOutputStream dataOut = new DataOutputStream(new FileOutputStream("CompressedData.bin"))){
             int tableLength = codedTable.size();
             dataOut.writeByte(tableLength);
             for (Character key : codedTable.keySet()) {
@@ -114,7 +114,7 @@ public class Huffman {
                 int codeSize = codedTable.get(key).length();
                 dataOut.writeByte(codeSize);
                 String code = codedTable.get(key);
-                while (code.length() % 8 != 0) {
+                while (code.length() < 8) {
                     code += "0";
                 }
                 int data = Integer.parseInt(code, 2);
@@ -126,19 +126,18 @@ public class Huffman {
     }
 
     public void compress(File textFile){
-        buildFrequencyTable(textFile);
-        buildHuffmanTree();
-        buildCodedTable(root, "");
-        readTextFile(textFile);
+        BuildFrequencyTable(textFile);
+        BuildHuffmanTree();
+        BuildCodedTable(root, "");
+        ReadToWriteText(textFile);
     }
 
 
     public void decompress(File textFile) {
-        try{
-            DataInputStream dataIn = new DataInputStream(new FileInputStream(textFile));
+        try(DataInputStream dataIn = new DataInputStream(new FileInputStream(textFile))){
             int tableLength = dataIn.readByte();
             for (int i = 0; i < tableLength; i++) {
-                char key = (char) dataIn.readByte();
+                char key = (char) dataIn.read();
                 int codeLength = dataIn.read();
                 int data = dataIn.read();
                 String dataBinStr = Integer.toBinaryString(data);
@@ -146,9 +145,8 @@ public class Huffman {
                     dataBinStr = "0" + dataBinStr;
                 }
                 String dataStr = dataBinStr.substring(0, codeLength);
-                codedTable.put(key, dataStr);
+                invertedCodedTable.put(dataStr, key);
             }
-            invertCodeTable();
             int codedLength = dataIn.readShort();
             int codedLengthBytes = (int) Math.ceil((double)codedLength/8);
             StringBuilder codedData = new StringBuilder();
@@ -177,15 +175,6 @@ public class Huffman {
         }catch (Exception e) {
             System.out.println("Error: " + e);
             e.printStackTrace();
-        }
-        invertCodeTable();
-
-
-    }
-
-    private void invertCodeTable() {
-        for (Character key : codedTable.keySet()) {
-            invertedCodedTable.put(codedTable.get(key), key);
         }
     }
 }

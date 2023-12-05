@@ -20,7 +20,7 @@ public class GUI implements ActionListener {
     JButton decompress = new JButton();
     JFrame frame = new JFrame("Codec");
     JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir")); // GUI to select files
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt", "tx"); // Filter to choose specific files only
+    FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt", "tx", "bin"); // Filter to choose specific files only
     
     public GUI(){
         panel.setLayout(null);
