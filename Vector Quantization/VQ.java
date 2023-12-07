@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 
 public class VQ {
 
+    ArrayList<int[][]> clusters = new ArrayList<int[][]>();
     ArrayList<int[][]> codeBook = new ArrayList<int[][]>();
 
     public int[][] ProcessGrayScaleImage(File imageFile) throws Exception {
@@ -52,7 +53,7 @@ public class VQ {
         return kSize;
     }
 
-    public void GenerateCodeBook(int[][] pixelArray, int kSize){
+    public void GenerateClusters(int[][] pixelArray, int kSize){
         int width = pixelArray.length, height = pixelArray[0].length;
 
         for(int i = 0; i < width; i += kSize){
@@ -66,7 +67,7 @@ public class VQ {
                     }
                 }
 
-                codeBook.add(entry);
+                clusters.add(entry);
             }
         }
         
@@ -77,10 +78,10 @@ public class VQ {
         
         float[][] averageEntry = new float[kSize][kSize];
 
-        for(int i = 0; i < codeBook.size(); i++){
-            for(int j = 0; j < codeBook.get(i).length; j++){
-                for(int k = 0; k < codeBook.get(i)[j].length; k++){
-                    averageEntry[j][k] += codeBook.get(i)[j][k];
+        for(int i = 0; i < clusters.size(); i++){
+            for(int j = 0; j < clusters.get(i).length; j++){
+                for(int k = 0; k < clusters.get(i)[j].length; k++){
+                    averageEntry[j][k] += clusters.get(i)[j][k];
                 }
             }
         }
@@ -91,19 +92,35 @@ public class VQ {
             }
         }
 
-        SplitCodeBook(averageEntry, kSize);
+        SplitClusters(averageEntry, kSize);
     }
+
+
+    public void SplitClusters(float[][] averageEntry, int kSize){
+        if (codeBook != null){
+
+        }
+        else{
+            int[][] low = new int[kSize][kSize];
+            int[][] high = new int[kSize][kSize];
     
-    public void SplitCodeBook(float[][] averageEntry, int kSize){
-        
-        
+            for(int i = 0; i < kSize; i++){
+                for(int j = 0; j < kSize; j++){
+                    low[i][j] = (int) Math.floor(averageEntry[i][j]);
+                    high[i][j] = (int) Math.ceil(averageEntry[i][j]);
+                }
+            }
+    
+            codeBook.add(low);
+            codeBook.add(high);
+        }
     }
 
     public void compress(File imageFile) throws Exception{
         try{
             int[][] pixelArray = ProcessGrayScaleImage(imageFile);
             int kSize = GetOptimalKSize(pixelArray);
-            GenerateCodeBook(pixelArray, kSize);
+            GenerateClusters(pixelArray, kSize);
         }
         catch(Exception e){
             throw e;
@@ -111,7 +128,7 @@ public class VQ {
     }
 
     public void saveCompressedFile(int[][] compressedImage) throws Exception{
-        saveCodeBook();
+        // saveCodeBook();
         try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream("compressedImage.bin"))){
             // size of the image
             dataOut.writeShort(compressedImage.length);
@@ -127,28 +144,26 @@ public class VQ {
         }
     }
 
-    private void saveCodeBook() throws Exception {
-        try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream("compressedImage.bin"))){
-            // Number of entries in the code book
-            dataOut.writeShort(codeBook.size());
-            for(int i = 0; i < codeBook.size(); i++){
-                // Code book entry number
-                dataOut.writeByte(i);
-                for(int j = 0; j < codeBook.get(i).length; j++){
-                    for(int k = 0; k < codeBook.get(i)[j].length; k++){
-                        // Code book entry value
-                        dataOut.writeByte(codeBook.get(i)[j][k]);
-                    }
-                }
-            }
-        }   catch (Exception e) {
-            throw e;
-        }
-    }
+    // private void saveCodeBook() throws Exception {
+    //     try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream("compressedImage.bin"))){
+    //         // Number of entries in the code book
+    //         dataOut.writeShort(codeBook.size());
+    //         for(int i = 0; i < codeBook.size(); i++){
+    //             // Code book entry number
+    //             dataOut.writeByte(i);
+    //             for(int j = 0; j < codeBook.get(i).length; j++){
+    //                 for(int k = 0; k < codeBook.get(i)[j].length; k++){
+    //                     // Code book entry value
+    //                     dataOut.writeByte(codeBook.get(i)[j][k]);
+    //                 }
+    //             }
+    //         }
+    //     }   catch (Exception e) {
+    //         throw e;
+    //     }
+    // }
 
     public void decompress(File compressedFile) throws Exception{
-        int[][] compressedImage = readCompressedFile(compressedFile);
-        
-
+    //     int[][] compressedImage = readCompressedFile(compressedFile);
     }
 }
