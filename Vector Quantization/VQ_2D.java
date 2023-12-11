@@ -160,8 +160,8 @@ public class VQ_2D {
     
             // Set new pixel array values based on the chosen codeBook entry
             float[][] chosenCodeBookEntry = codeBook.get(minDistanceCluster);
-            int xOffset = (i % (width / BSIZE)) * BSIZE;  // Corrected calculation
-            int yOffset = (i / (width / BSIZE)) * BSIZE;  // Corrected calculation
+            int yOffset = (i % (width / BSIZE)) * BSIZE;  // Corrected calculation
+            int xOffset = (i / (width / BSIZE)) * BSIZE;  // Corrected calculation
     
             for (int x = 0; x < BSIZE; x++) {
                 for (int y = 0; y < BSIZE; y++) {
@@ -219,7 +219,7 @@ public class VQ_2D {
             for (int y = 0; y < pixelArray[0].length; y++) {
                 int grayValue = pixelArray[x][y];
                 int pixelValue = (grayValue << 16) | (grayValue << 8) | grayValue;
-                image.setRGB(y, x, pixelValue);
+                image.setRGB(x, y, pixelValue);
             }
         }
 
