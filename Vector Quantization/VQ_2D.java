@@ -1,8 +1,6 @@
 import java.io.File;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.awt.image.BufferedImage;
 
