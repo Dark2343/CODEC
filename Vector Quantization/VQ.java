@@ -37,22 +37,6 @@ public class VQ {
         }
     }
 
-    public int GetOptimalKSize(int[][] pixelArray){
-        int width = pixelArray.length, height = pixelArray[0].length;
-        int kSize = 0;
-
-        if(width == height){
-            kSize = width / 2;
-        }
-        else if(width > height){
-            kSize = height / 2;
-        }
-        else{
-            kSize = width / 2;
-        }
-        return kSize;
-    }
-
     public void GenerateClusters(int[][] pixelArray, int kSize){
         int width = pixelArray.length, height = pixelArray[0].length;
 
@@ -97,34 +81,17 @@ public class VQ {
 
 
     public void SplitClusters(float[][] averageEntry, int kSize){
-        if (codeBook != null){
-
-        }
-        else{
-            int[][] low = new int[kSize][kSize];
-            int[][] high = new int[kSize][kSize];
-    
-            for(int i = 0; i < kSize; i++){
-                for(int j = 0; j < kSize; j++){
-                    low[i][j] = (int) Math.floor(averageEntry[i][j]);
-                    high[i][j] = (int) Math.ceil(averageEntry[i][j]);
-                }
-            }
-    
-            codeBook.add(low);
-            codeBook.add(high);
-        }
+        
     }
 
-    public void compress(File imageFile) throws Exception{
-        try{
-            int[][] pixelArray = ProcessGrayScaleImage(imageFile);
-            int kSize = GetOptimalKSize(pixelArray);
-            GenerateClusters(pixelArray, kSize);
-        }
-        catch(Exception e){
-            throw e;
-        }
+    public void compress(File imageFile, int kSize) throws Exception{
+        // try{
+        //     int[][] pixelArray = ProcessGrayScaleImage(imageFile);
+        //     GenerateClusters(pixelArray, kSize);
+        // }
+        // catch(Exception e){
+        //     throw e;
+        // }
     }
 
     public void saveCompressedFile(int[][] compressedImage) throws Exception{
