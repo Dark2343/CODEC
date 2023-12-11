@@ -47,7 +47,7 @@ public class VQ_3D {
         }
     }
     
-    public void GenerateClusters(int[][][] pixelArray){
+    public void GenerateClusters(int[][][] pixelArray) {
         int width = pixelArray.length, height = pixelArray[0].length;
         
         for(int i = 0; i < width; i += BSIZE){
@@ -56,7 +56,7 @@ public class VQ_3D {
 
                     float entry[][][] = new float[BSIZE][BSIZE][RGB];
                     
-                    for(int x = 0; x < BSIZE; x++){
+                    for (int x = 0; x < BSIZE; x++) {
                         for (int y = 0; y < BSIZE; y++) {
                             entry[x][y][k] = pixelArray[x + i][y + j][k];
                         }
@@ -71,20 +71,22 @@ public class VQ_3D {
         
         float[][][] averageEntry = new float[BSIZE][BSIZE][RGB];
         
-        for(int i = 0; i < clusterGroup.size(); i++){
-            for(int j = 0; j < clusterGroup.get(i).length; j++){
-                for(int k = 0; k < clusterGroup.get(i)[j].length; k++){
-                    for(int l = 0; l < RGB; l++){
-                        averageEntry[j][k][l] += clusterGroup.get(i)[j][k][l];
+        if (clusterGroup.size() > 0) {
+            for(int i = 0; i < clusterGroup.size(); i++){
+                for(int j = 0; j < clusterGroup.get(i).length; j++){
+                    for(int k = 0; k < clusterGroup.get(i)[j].length; k++){
+                        for(int l = 0; l < RGB; l++){
+                            averageEntry[j][k][l] += clusterGroup.get(i)[j][k][l];
+                        }
                     }
                 }
             }
-        }
-        
-        for(int i = 0; i < averageEntry.length; i++){
-            for(int j = 0; j < averageEntry[0].length; j++){
-                for(int k = 0; k < RGB; k++){
-                    averageEntry[i][j][k] /= clusterGroup.size();
+            
+            for(int i = 0; i < averageEntry.length; i++){
+                for(int j = 0; j < averageEntry[0].length; j++){
+                    for(int k = 0; k < RGB; k++){
+                        averageEntry[i][j][k] /= clusterGroup.size();
+                    }
                 }
             }
         }
@@ -118,6 +120,7 @@ public class VQ_3D {
             for (int i = 0; i < nearestVectors.size(); i++) {
                 codeBook.add(GetAverageEntry(nearestVectors.get(i)));
             }
+            System.out.println("LOL");
         }
     }
 
@@ -179,8 +182,10 @@ public class VQ_3D {
     
             // Set new pixel array values based on the chosen codeBook entry
             float[][][] chosenCodeBookEntry = codeBook.get(minDistanceCluster);
-            int xOffset = (i % (width / BSIZE)) * BSIZE;
-            int yOffset = (i / (width / BSIZE)) * BSIZE;
+            int blockIndex = i / BSIZE;  // Calculate the current block index
+            int xOffset = (blockIndex % (width / BSIZE)) * BSIZE;
+            int yOffset = (blockIndex / (width / BSIZE)) * BSIZE;
+
     
             for (int x = 0; x < BSIZE; x++) {
                 for (int y = 0; y < BSIZE; y++) {
