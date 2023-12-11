@@ -6,7 +6,8 @@ import java.awt.image.BufferedImage;
 
 public class VQ_2D {
 
-    int KSIZE;
+    int KSIZE; // Number of clusters in codebook
+    int BSIZE; // Block size
     ArrayList<float[][]> clusters = new ArrayList<float[][]>();
     ArrayList<float[][]> codeBook = new ArrayList<float[][]>();
     
@@ -40,13 +41,13 @@ public class VQ_2D {
     public void GenerateClusters(int[][] pixelArray){
         int width = pixelArray.length, height = pixelArray[0].length;
         
-        for(int i = 0; i < width; i += KSIZE){
-            for(int j = 0; j < height; j += KSIZE){
+        for(int i = 0; i < width; i += BSIZE){
+            for(int j = 0; j < height; j += BSIZE){
                 
-                float entry[][] = new float[KSIZE][KSIZE];
+                float entry[][] = new float[BSIZE][BSIZE];
                 
-                for(int x = 0; x < KSIZE; x++){
-                    for (int y = 0; y < KSIZE; y++) {
+                for(int x = 0; x < BSIZE; x++){
+                    for (int y = 0; y < BSIZE; y++) {
                         entry[x][y] = pixelArray[x + i][y + j]; 
                     }
                 }
@@ -58,7 +59,7 @@ public class VQ_2D {
     
     public float[][] GetAverageEntry(ArrayList<float[][]> clusterGroup){
         
-        float[][] averageEntry = new float[KSIZE][KSIZE];
+        float[][] averageEntry = new float[BSIZE][BSIZE];
         
         for(int i = 0; i < clusterGroup.size(); i++){
             for(int j = 0; j < clusterGroup.get(i).length; j++){
@@ -83,8 +84,8 @@ public class VQ_2D {
             ArrayList<ArrayList<float[][]>> nearestVectors = new ArrayList<ArrayList<float[][]>>();
             
             for(float[][] cluster : codeBook){
-                float[][] low = new float[KSIZE][KSIZE];
-                float[][] high = new float[KSIZE][KSIZE];
+                float[][] low = new float[BSIZE][BSIZE];
+                float[][] high = new float[BSIZE][BSIZE];
                 
                 for(int i = 0; i < cluster.length; i++){
                     for(int j = 0; j < cluster[0].length; j++){
@@ -117,20 +118,20 @@ public class VQ_2D {
             
             for(int i = 0; i < tempBook.size(); i++){
                 int tempDistance = 0;
-                
-                for(int x = 0; x < KSIZE; x++){
-                    for(int y = 0; y < KSIZE; y++){
+
+                for(int x = 0; x < BSIZE; x++){
+                    for(int y = 0; y < BSIZE; y++){
                         tempDistance += Math.abs(cluster[x][y] - tempBook.get(i)[x][y]);
                     }
                 }
                 minDistanceCluster = (minDistance > tempDistance) ? i : minDistanceCluster;
-                minDistance = (minDistance > tempDistance) ? tempDistance : minDistance;
+                minDistance = Math.min(minDistance, tempDistance);
             }
             nearestVectors.get(minDistanceCluster).add(cluster);
         }
         return nearestVectors;
     }
-    
+
     public int[][] OverwriteImage(int width, int height) {
         int[][] newPixelArray = new int[width][height];
     
@@ -143,13 +144,13 @@ public class VQ_2D {
     
             for (int j = 0; j < codeBook.size(); j++) {
                 int tempDistance = 0;
-    
-                for (int x = 0; x < KSIZE; x++) {
-                    for (int y = 0; y < KSIZE; y++) {
+
+                for (int x = 0; x < BSIZE; x++) {
+                    for (int y = 0; y < BSIZE; y++) {
                         tempDistance += Math.abs(cluster[x][y] - codeBook.get(j)[x][y]);
                     }
                 }
-    
+
                 if (tempDistance < minDistance) {
                     minDistance = tempDistance;
                     minDistanceCluster = j;
@@ -158,11 +159,11 @@ public class VQ_2D {
     
             // Set new pixel array values based on the chosen codeBook entry
             float[][] chosenCodeBookEntry = codeBook.get(minDistanceCluster);
-            int xOffset = (i % (width / KSIZE)) * KSIZE;  // Corrected calculation
-            int yOffset = (i / (width / KSIZE)) * KSIZE;  // Corrected calculation
+            int xOffset = (i % (width / BSIZE)) * BSIZE;  // Corrected calculation
+            int yOffset = (i / (width / BSIZE)) * BSIZE;  // Corrected calculation
     
-            for (int x = 0; x < KSIZE; x++) {
-                for (int y = 0; y < KSIZE; y++) {
+            for (int x = 0; x < BSIZE; x++) {
+                for (int y = 0; y < BSIZE; y++) {
                     newPixelArray[x + xOffset][y + yOffset] = (int) chosenCodeBookEntry[x][y];
                 }
             }
@@ -171,9 +172,10 @@ public class VQ_2D {
         return newPixelArray;
     }
 
-    public void compress(File imageFile, int kSize) throws Exception{
+    public void compress(File imageFile, int kSize, int blockSize) throws Exception{
         try{
             KSIZE = kSize;
+            BSIZE = blockSize;
             int[][] pixelArray = ProcessGrayScaleImage(imageFile);
             GenerateClusters(pixelArray);
             SplitClusters(GetAverageEntry(clusters));

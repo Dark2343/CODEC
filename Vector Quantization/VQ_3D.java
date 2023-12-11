@@ -89,7 +89,7 @@ public class VQ_3D {
         
     }
 
-    public void compress(File imageFile, int kSize) throws Exception{
+    public void compress(File imageFile, int kSize, int blockSize) throws Exception{
         try{
             // int[][][] pixelArray = ProcessRGBImage(imageFile);
         }
