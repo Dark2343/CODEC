@@ -1,11 +1,11 @@
-import java.awt.image.BufferedImage;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.awt.image.BufferedImage;
 
-public class VQ {
+public class VQ_2D {
 
     ArrayList<int[][]> clusters = new ArrayList<int[][]>();
     ArrayList<int[][]> codeBook = new ArrayList<int[][]>();
@@ -35,10 +35,6 @@ public class VQ {
         catch(Exception e){
             throw e;
         }
-    }
-    
-    public int[][][] ProcessRGBImage(File imageFile) throws Exception {
-        return null;
     }
 
     public void GenerateClusters(int[][] pixelArray, int kSize){
@@ -88,15 +84,10 @@ public class VQ {
         
     }
 
-    public void compress(File imageFile, int kSize, boolean grayImage) throws Exception{
+    public void compress(File imageFile, int kSize) throws Exception{
         try{
-            if (grayImage) {
-                int[][] pixelArray = ProcessGrayScaleImage(imageFile);
-                GenerateClusters(pixelArray, kSize);
-            }
-            else{
-                int[][][] pixelArray = ProcessRGBImage(imageFile);
-            }
+            int[][] pixelArray = ProcessGrayScaleImage(imageFile);
+            GenerateClusters(pixelArray, kSize);
         }
         catch(Exception e){
             throw e;
@@ -140,6 +131,6 @@ public class VQ {
     // }
 
     public void decompress(File compressedFile) throws Exception{
-    //     int[][] compressedImage = readCompressedFile(compressedFile);
+        // int[][] compressedImage = readCompressedFile(compressedFile);
     }
 }

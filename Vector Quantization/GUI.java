@@ -15,7 +15,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class GUI implements ActionListener {
     File imageFile;
-    VQ vq = new VQ();
     JPanel panel= new JPanel();
     JButton select = new JButton();
     JLabel textLabel = new JLabel();
@@ -99,7 +98,6 @@ public class GUI implements ActionListener {
         else if (actionEvent.getActionCommand().equals("Compress")) {
             try{
                 int kSize = 0;
-                Boolean coloredImage = false;
 
                 if (kSizeField.getText().equals("")) {
                     // Throws exception if input is empty
@@ -110,16 +108,17 @@ public class GUI implements ActionListener {
                 }
 
                 if (grayImage.isSelected()) {
-                    coloredImage = false;
+                    VQ_2D vq = new VQ_2D();
+                    vq.compress(imageFile, kSize);
                 }
                 else if (rgbImage.isSelected()) {
-                    coloredImage = true;
+                    VQ_3D vq = new VQ_3D();
+                    vq.compress(imageFile, kSize);    
                 }
                 else{
                     throw new Exception();
                 }
-
-                vq.compress(imageFile, kSize, coloredImage);
+                
                 textLabel.setBounds(200, 60, 250, 60);
                 textLabel.setText("Compression completed");
             }
@@ -130,14 +129,23 @@ public class GUI implements ActionListener {
         }
         else if (actionEvent.getActionCommand().equals("Decompress")) {
             try{
-                vq.decompress(imageFile);
+                if (grayImage.isSelected()) {
+                    VQ_2D vq = new VQ_2D();
+                    vq.decompress(imageFile);
+                }
+                else if (rgbImage.isSelected()) {
+                    VQ_3D vq = new VQ_3D();
+                    vq.decompress(imageFile);
+                }
+                else{
+                    throw new Exception();
+                }
                 textLabel.setBounds(190, 60, 250, 60);
                 textLabel.setText("Decompression completed");
             }
             catch(Exception e){
-                e.printStackTrace();
-                textLabel.setBounds(185, 60, 250, 60);
-                textLabel.setText("File Error");
+                textLabel.setBounds(195, 60, 250, 60);
+                textLabel.setText("File or input error");
             }
         }
     }
