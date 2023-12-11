@@ -145,6 +145,7 @@ public class GUI implements ActionListener {
                 textLabel.setText("Compression completed");
             }
             catch(Exception e){
+                e.printStackTrace();
                 textLabel.setBounds(195, 60, 250, 60);
                 textLabel.setText("Invalid or missing inputs");
             }

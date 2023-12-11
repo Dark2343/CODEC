@@ -8,18 +8,20 @@ public class VQ_2D {
 
     int KSIZE; // Number of clusters in codebook
     int BSIZE; // Block size
+    int WIDTH, HEIGHT;
     ArrayList<float[][]> clusters = new ArrayList<float[][]>();
     ArrayList<float[][]> codeBook = new ArrayList<float[][]>();
     
     public int[][] ProcessGrayScaleImage(File imageFile) throws Exception {
         try{
             BufferedImage img = ImageIO.read(imageFile);
-            int width = img.getWidth(), height = img.getHeight();
+            WIDTH = img.getWidth();
+            HEIGHT = img.getHeight();
             
-            int[][] pixelArray = new int[width][height];
+            int[][] pixelArray = new int[WIDTH][HEIGHT];
             
-            for(int i = 0; i < width; i++){
-                for(int j = 0; j < height; j++){
+            for(int i = 0; i < WIDTH; i++){
+                for(int j = 0; j < HEIGHT; j++){
                     
                     // Get the RGB value of the pixel
                     int rgb = img.getRGB(i, j);
@@ -51,7 +53,6 @@ public class VQ_2D {
                         entry[x][y] = pixelArray[x + i][y + j]; 
                     }
                 }
-                
                 clusters.add(entry);
             }
         }
@@ -164,7 +165,7 @@ public class VQ_2D {
     
             for (int x = 0; x < BSIZE; x++) {
                 for (int y = 0; y < BSIZE; y++) {
-                    newPixelArray[x + xOffset][y + yOffset] = (int) chosenCodeBookEntry[x][y];
+                    newPixelArray[y + xOffset][x + yOffset] = (int) chosenCodeBookEntry[x][y];
                 }
             }
         }
@@ -177,13 +178,11 @@ public class VQ_2D {
             KSIZE = kSize;
             BSIZE = blockSize;
             int[][] pixelArray = ProcessGrayScaleImage(imageFile);
+            
             GenerateClusters(pixelArray);
             SplitClusters(GetAverageEntry(clusters));
+            pixelArray = OverwriteImage(WIDTH, HEIGHT);
 
-            BufferedImage img = ImageIO.read(imageFile);
-            int width = img.getWidth(), height = img.getHeight();
-
-            pixelArray = OverwriteImage(width, height);
             String name = imageFile.getName().replaceFirst("[.][^.]+$", "");
             WriteCompressedImage(pixelArray, name);
         }
@@ -214,7 +213,7 @@ public class VQ_2D {
 
     // FOR COMPRESSED IMAGE OUTPUT
     public void WriteCompressedImage(int[][] pixelArray, String name) {
-        String path = System.getProperty("user.dir") + "\\"+ name + "_Grayscaled.png";
+        String path = System.getProperty("user.dir") + "\\Compressed_"+ name + "_Grayscaled.png";
         BufferedImage image = new BufferedImage(pixelArray.length, pixelArray[0].length, BufferedImage.TYPE_BYTE_GRAY);
         for (int x = 0; x < pixelArray.length; x++) {
             for (int y = 0; y < pixelArray[0].length; y++) {
