@@ -16,25 +16,29 @@ public class VQ {
             int width = img.getWidth(), height = img.getHeight();
             
             int[][] pixelArray = new int[width][height];
-    
+            
             for(int i = 0; i < width; i++){
                 for(int j = 0; j < height; j++){
-
+                    
                     // Get the RGB value of the pixel
                     int rgb = img.getRGB(i, j);
                                         
                     // Extract the grayscale value (assuming it's a single channel)
                     int grayscaleValue = (rgb >> 16) & 0xFF;
-
+                    
                     pixelArray[i][j] = grayscaleValue;
                 }
             }
-
+            
             return pixelArray;
         }
         catch(Exception e){
             throw e;
         }
+    }
+    
+    public int[][][] ProcessRGBImage(File imageFile) throws Exception {
+        return null;
     }
 
     public void GenerateClusters(int[][] pixelArray, int kSize){
@@ -44,13 +48,13 @@ public class VQ {
             for(int j = 0; j < height; j += kSize){
                 
                 int entry[][] = new int[kSize][kSize];
-
+                
                 for(int x = 0; x < kSize; x++){
                     for (int y = 0; y < kSize; y++) {
                         entry[x][y] = pixelArray[x + i][y + j]; 
                     }
                 }
-
+                
                 clusters.add(entry);
             }
         }
@@ -84,14 +88,19 @@ public class VQ {
         
     }
 
-    public void compress(File imageFile, int kSize) throws Exception{
-        // try{
-        //     int[][] pixelArray = ProcessGrayScaleImage(imageFile);
-        //     GenerateClusters(pixelArray, kSize);
-        // }
-        // catch(Exception e){
-        //     throw e;
-        // }
+    public void compress(File imageFile, int kSize, boolean grayImage) throws Exception{
+        try{
+            if (grayImage) {
+                int[][] pixelArray = ProcessGrayScaleImage(imageFile);
+                GenerateClusters(pixelArray, kSize);
+            }
+            else{
+                int[][][] pixelArray = ProcessRGBImage(imageFile);
+            }
+        }
+        catch(Exception e){
+            throw e;
+        }
     }
 
     public void saveCompressedFile(int[][] compressedImage) throws Exception{
