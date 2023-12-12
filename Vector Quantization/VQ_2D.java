@@ -1,4 +1,8 @@
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -185,31 +189,12 @@ public class VQ_2D {
 
             String name = imageFile.getName().replaceFirst("[.][^.]+$", "");
             WriteCompressedImage(pixelArray, name);
+            SaveCompressedFile(pixelArray, name);
         }
         catch(Exception e){
             throw e;
         }
     }
-
-    // FOR BINARY FILE OUTPUT
-    
-    // public void saveCompressedFile(int[][] compressedImage) throws Exception{
-    //     // saveCodeBook();
-    //     try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream("compressedImage.bin"))){
-    //         // size of the image
-    //         dataOut.writeShort(compressedImage.length);
-    //         dataOut.writeShort(compressedImage[0].length);
-    //         for(int i = 0; i < compressedImage.length; i++){
-    //             for(int j = 0; j < compressedImage[0].length; j++){
-    //                 // Compressed image value
-    //                 dataOut.writeByte(compressedImage[i][j]);
-    //             }
-    //         }
-    //     }   catch (Exception e) {
-    //         throw e;
-    //     }
-    // }
-
 
     // FOR COMPRESSED IMAGE OUTPUT
     public void WriteCompressedImage(int[][] pixelArray, String name) {
@@ -222,7 +207,7 @@ public class VQ_2D {
                 image.setRGB(x, y, pixelValue);
             }
         }
-
+        
         File ImageFile = new File(path);
         try {
             ImageIO.write(image, "png", ImageFile);
@@ -231,26 +216,140 @@ public class VQ_2D {
         }
     }
 
-    // private void saveCodeBook() throws Exception {
-    //     try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream("compressedImage.bin"))){
-    //         // Number of entries in the code book
-    //         dataOut.writeShort(codeBook.size());
-    //         for(int i = 0; i < codeBook.size(); i++){
-    //             // Code book entry number
-    //             dataOut.writeByte(i);
-    //             for(int j = 0; j < codeBook.get(i).length; j++){
-    //                 for(int k = 0; k < codeBook.get(i)[j].length; k++){
-    //                     // Code book entry value
-    //                     dataOut.writeByte(codeBook.get(i)[j][k]);
-    //                 }
-    //             }
-    //         }
-    //     }   catch (Exception e) {
-    //         throw e;
-    //     }
-    // }
+    // FOR BINARY FILE OUTPUT
+    // Modify SaveCompressedFile method
+public void SaveCompressedFile(int[][] compressedImage, String name) throws Exception {
+    String path = System.getProperty("user.dir") + "\\Compressed_" + name + ".bin";
+    File compressedFile = new File(path);
 
-    public void decompress(File compressedFile) throws Exception{
-        // int[][] compressedImage = readCompressedFile(compressedFile);
+    try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream(compressedFile))) {
+        dataOut.writeShort(KSIZE);
+        dataOut.writeShort(BSIZE);
+        dataOut.writeShort(WIDTH);
+        dataOut.writeShort(HEIGHT);
+
+        for (int i = 0; i < KSIZE; i++) {
+            dataOut.writeByte(0);
+            float[][] entry = codeBook.get(i);
+
+            for (int j = 0; j < BSIZE; j++) {
+                for (int k = 0; k < BSIZE; k++) {
+                    // Convert float to short before writing
+                    dataOut.writeShort((short) entry[j][k]);
+                }
+            }
+        }
+
+        for (int i = 0; i < compressedImage.length; i += BSIZE) {
+            for (int j = 0; j < compressedImage[0].length; j += BSIZE) {
+                float[][] entry = new float[BSIZE][BSIZE];
+
+                for (int x = 0; x < BSIZE; x++) {
+                    for (int y = 0; y < BSIZE; y++) {
+                        entry[x][y] = compressedImage[x + i][y + j];
+                    }
+                }
+
+                for (int x = 0; x < BSIZE; x++) {
+                    for (int y = 0; y < BSIZE; y++) {
+                        // Convert float to short before writing
+                        dataOut.writeShort((short) entry[x][y]);
+                    }
+                }
+            }
+        }
+    } catch (Exception e) {
+        throw e;
+    }
+}
+
+// Modify decompress method
+public void decompress(File compressedFile) throws Exception {
+    try (DataInputStream dataIn = new DataInputStream(new FileInputStream(compressedFile))) {
+        KSIZE = dataIn.readShort();
+        BSIZE = dataIn.readShort();
+        WIDTH = dataIn.readShort();
+        HEIGHT = dataIn.readShort();
+        int[][] decompressedImage = new int[WIDTH][HEIGHT];
+
+        for (int i = 0; i < KSIZE; i++) {
+            dataIn.readByte();
+            float[][] entry = new float[BSIZE][BSIZE];
+
+            for (int j = 0; j < BSIZE; j++) {
+                for (int k = 0; k < BSIZE; k++) {
+                    // Convert short to float after reading
+                    entry[j][k] = dataIn.readShort();
+                }
+            }
+
+            codeBook.add(entry);
+        }
+
+        for (int i = 0; i < WIDTH; i += BSIZE) {
+            for (int j = 0; j < HEIGHT; j += BSIZE) {
+                float[][] entry = new float[BSIZE][BSIZE];
+
+                for (int x = 0; x < BSIZE; x++) {
+                    for (int y = 0; y < BSIZE; y++) {
+                        // Convert short to float after reading
+                        entry[x][y] = dataIn.readShort();
+                    }
+                }
+
+                int minDistance = Integer.MAX_VALUE;
+                int minDistanceCluster = -1;
+
+                for (int x = 0; x < codeBook.size(); x++) {
+                    int tempDistance = 0;
+
+                    for (int y = 0; y < BSIZE; y++) {
+                        for (int z = 0; z < BSIZE; z++) {
+                            tempDistance += Math.abs(entry[y][z] - codeBook.get(x)[y][z]);
+                        }
+                    }
+
+                    if (tempDistance < minDistance) {
+                        minDistance = tempDistance;
+                        minDistanceCluster = x;
+                    }
+                }
+
+                float[][] chosenCodeBookEntry = codeBook.get(minDistanceCluster);
+                int yOffset = (i % (WIDTH / BSIZE)) * BSIZE;
+                int xOffset = (j / (WIDTH / BSIZE)) * BSIZE;
+
+                for (int x = 0; x < BSIZE; x++) {
+                    for (int y = 0; y < BSIZE; y++) {
+                        decompressedImage[x + xOffset][y + yOffset] = (int) chosenCodeBookEntry[x][y];
+                    }
+                }
+            }
+        }
+
+        String name = compressedFile.getName().replaceFirst("[.][^.]+$", "");
+        WriteDecompressedImage(decompressedImage, name);
+    } catch (Exception e) {
+        throw e;
+    }
+}
+
+    public void WriteDecompressedImage(int[][] decompressedImage, String name) throws Exception{
+        String path = System.getProperty("user.dir") + "\\Decompressed_" + name + "_Grayscaled.png";
+        BufferedImage image = new BufferedImage(decompressedImage.length, decompressedImage[0].length, BufferedImage.TYPE_BYTE_GRAY);
+        for (int x = 0; x < decompressedImage.length; x++) {
+            for (int y = 0; y < decompressedImage[0].length; y++) {
+                int grayValue = decompressedImage[x][y];
+                int pixelValue = (grayValue << 16) | (grayValue << 8) | grayValue;
+                image.setRGB(x, y, pixelValue);
+            }
+        }
+
+        File ImageFile = new File(path);
+        try {
+            ImageIO.write(image, "png", ImageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
