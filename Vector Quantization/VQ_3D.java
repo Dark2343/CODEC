@@ -251,7 +251,7 @@ public class VQ_3D {
 
     // FOR COMPRESSED IMAGE OUTPUT
     public void WriteCompressedImage(int[][] pixelArrayR, int[][] pixelArrayG, int[][] pixelArrayB, String name) {
-        String path = System.getProperty("user.dir") + "\\CP_"+ name + "_RGB.png";
+        String path = System.getProperty("user.dir") + "\\CP_"+ name + ".png";
         BufferedImage image = new BufferedImage(pixelArrayG.length, pixelArrayG[0].length, BufferedImage.TYPE_INT_RGB);
         
         for (int x = 0; x < pixelArrayG.length; x++) {
@@ -274,7 +274,7 @@ public class VQ_3D {
     }
 
     public void SaveCompressedFile(int[][] pixelArrayR, int[][] pixelArrayG, int[][] pixelArrayB, String name) throws Exception {
-        String path = System.getProperty("user.dir") + "\\CP_" + name + "_RGB.bin";
+        String path = System.getProperty("user.dir") + "\\CP_" + name + ".bin";
         File compressedFile = new File(path);
 
         try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream(compressedFile))) {
