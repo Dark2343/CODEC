@@ -5,25 +5,28 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-// NOTE THE RGB DOES WORK AT ALL RIGHT NOW, THE VARIABLE IS JUST FOR DEMO PURPOSES
-
-
 public class VQ_3D {
     
     int KSIZE; // Number of clusters in codeBook
     int BSIZE; // Block size
     int HEIGHT, WIDTH;
-    ArrayList<float[][][]> clusters = new ArrayList<float[][][]>();
-    ArrayList<float[][][]> codeBook = new ArrayList<float[][][]>();
-    final int RGB = 3; 
+    ArrayList<float[][]> clustersR = new ArrayList<float[][]>();
+    ArrayList<float[][]> clustersG = new ArrayList<float[][]>();
+    ArrayList<float[][]> clustersB = new ArrayList<float[][]>();
+    
+    ArrayList<float[][]> codeBookR = new ArrayList<float[][]>();
+    ArrayList<float[][]> codeBookG = new ArrayList<float[][]>();
+    ArrayList<float[][]> codeBookB = new ArrayList<float[][]>();
 
-    public int[][][] ProcessRGBImage(File imageFile) throws Exception {
+    public ArrayList<int[][]> ProcessRGBImage(File imageFile) throws Exception {
         try{
             BufferedImage img = ImageIO.read(imageFile);
             WIDTH = img.getWidth();
             HEIGHT = img.getHeight();
             
-            int[][][] pixelArray = new int[WIDTH][HEIGHT][RGB];
+            int[][] pixelArrayR = new int[WIDTH][HEIGHT];
+            int[][] pixelArrayG = new int[WIDTH][HEIGHT];
+            int[][] pixelArrayB = new int[WIDTH][HEIGHT];
             
             for (int i = 0; i < WIDTH; i++) {
                 for (int j = 0; j < HEIGHT; j++) {
@@ -34,115 +37,119 @@ public class VQ_3D {
                     int g = (rgb >> 8) & 0xFF;
                     int b = rgb & 0xFF;
                     
-                    pixelArray[i][j][0] = r;  // Red
-                    pixelArray[i][j][1] = g;  // Green
-                    pixelArray[i][j][2] = b;  // Blue
+                    pixelArrayR[i][j] = r;  // Red
+                    pixelArrayG[i][j] = g;  // Green
+                    pixelArrayB[i][j] = b;  // Blue
                 }
             }
             
-            return pixelArray;
+            ArrayList<int[][]> rgbArrayList = new ArrayList<int[][]>();
+            rgbArrayList.add(pixelArrayR);
+            rgbArrayList.add(pixelArrayG);
+            rgbArrayList.add(pixelArrayB);
+            return rgbArrayList;
         }
         catch(Exception e){
             throw e;
         }
     }
     
-    public void GenerateClusters(int[][][] pixelArray) {
+    public void GenerateClusters(int[][] pixelArray, int color){
         int width = pixelArray.length, height = pixelArray[0].length;
         
         for(int i = 0; i < width; i += BSIZE){
             for(int j = 0; j < height; j += BSIZE){
-                for (int k = 0; k < RGB; k++) {
-
-                    float entry[][][] = new float[BSIZE][BSIZE][RGB];
-                    
-                    for (int x = 0; x < BSIZE; x++) {
-                        for (int y = 0; y < BSIZE; y++) {
-                            entry[x][y][k] = pixelArray[x + i][y + j][k];
-                        }
+                
+                float entry[][] = new float[BSIZE][BSIZE];
+                
+                for(int x = 0; x < BSIZE; x++){
+                    for (int y = 0; y < BSIZE; y++) {
+                        entry[x][y] = pixelArray[x + i][y + j]; 
                     }
-                    clusters.add(entry);
+                }
+
+                switch (color) {
+                    case 0:
+                        clustersR.add(entry);
+                        break;
+                    case 1:
+                        clustersG.add(entry);
+                        break;
+                    case 2:
+                        clustersB.add(entry);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
     }
 
-    public float[][][] GetAverageEntry(ArrayList<float[][][]> clusterGroup){
+    public float[][] GetAverageEntry(ArrayList<float[][]> clusterGroup){
         
-        float[][][] averageEntry = new float[BSIZE][BSIZE][RGB];
+        float[][] averageEntry = new float[BSIZE][BSIZE];
         
-        if (clusterGroup.size() > 0) {
-            for(int i = 0; i < clusterGroup.size(); i++){
-                for(int j = 0; j < clusterGroup.get(i).length; j++){
-                    for(int k = 0; k < clusterGroup.get(i)[j].length; k++){
-                        for(int l = 0; l < RGB; l++){
-                            averageEntry[j][k][l] += clusterGroup.get(i)[j][k][l];
-                        }
-                    }
+        for(int i = 0; i < clusterGroup.size(); i++){
+            for(int j = 0; j < clusterGroup.get(i).length; j++){
+                for(int k = 0; k < clusterGroup.get(i)[j].length; k++){
+                    averageEntry[j][k] += clusterGroup.get(i)[j][k];
                 }
             }
-            
-            for(int i = 0; i < averageEntry.length; i++){
-                for(int j = 0; j < averageEntry[0].length; j++){
-                    for(int k = 0; k < RGB; k++){
-                        averageEntry[i][j][k] /= clusterGroup.size();
-                    }
-                }
+        }
+        
+        for(int i = 0; i < averageEntry.length; i++){
+            for(int j = 0; j < averageEntry[0].length; j++){
+                averageEntry[i][j] /= clusterGroup.size();
             }
         }
         return averageEntry;
     }
 
-    public void SplitClusters(float[][][] averageEntry){
+    public void SplitClusters(float[][] averageEntry, ArrayList<float[][]> codeBook, ArrayList<float[][]> clusters){
         codeBook.add(averageEntry);
         while (codeBook.size() < KSIZE) {
-            ArrayList<float[][][]> tempBook = new ArrayList<float[][][]>();
-            ArrayList<ArrayList<float[][][]>> nearestVectors = new ArrayList<ArrayList<float[][][]>>();
+            ArrayList<float[][]> tempBook = new ArrayList<float[][]>();
+            ArrayList<ArrayList<float[][]>> nearestVectors = new ArrayList<ArrayList<float[][]>>();
             
-            for(float[][][] cluster : codeBook){
-                float[][][] low = new float[BSIZE][BSIZE][RGB];
-                float[][][] high = new float[BSIZE][BSIZE][RGB];
+            for(float[][] cluster : codeBook){
+                float[][] low = new float[BSIZE][BSIZE];
+                float[][] high = new float[BSIZE][BSIZE];
                 
                 for(int i = 0; i < cluster.length; i++){
                     for(int j = 0; j < cluster[0].length; j++){
-                        for(int k = 0; k < RGB; k++){
-                            low[i][j][k] = (float) Math.floor(cluster[i][j][k]);
-                            high[i][j][k] = (float) Math.ceil(cluster[i][j][k]);
-                        }
+                        low[i][j] = (float) Math.floor(cluster[i][j]);
+                        high[i][j] = (float) Math.ceil(cluster[i][j]);
                     }
                 }
                 tempBook.add(low);
                 tempBook.add(high);
             }
-            nearestVectors = CalculateDistances(tempBook);
+            nearestVectors = CalculateDistances(tempBook, clusters);
             codeBook.clear();
 
             for (int i = 0; i < nearestVectors.size(); i++) {
                 codeBook.add(GetAverageEntry(nearestVectors.get(i)));
             }
-            System.out.println("LOL");
         }
     }
 
-    public ArrayList<ArrayList<float[][][]>> CalculateDistances(ArrayList<float[][][]> tempBook){
-        ArrayList<ArrayList<float[][][]>> nearestVectors = new ArrayList<ArrayList<float[][][]>>();
+    public ArrayList<ArrayList<float[][]>> CalculateDistances(ArrayList<float[][]> tempBook, ArrayList<float[][]> clusters){
+        ArrayList<ArrayList<float[][]>> nearestVectors = new ArrayList<ArrayList<float[][]>>();
 
         for (int i = 0; i < tempBook.size(); i++) {
-            nearestVectors.add(new ArrayList<float[][][]>());
+            nearestVectors.add(new ArrayList<float[][]>());
         }
 
-        for(float[][][] cluster : clusters){
+        for(float[][] cluster : clusters){
             int minDistance = Integer.MAX_VALUE;
             int minDistanceCluster = -1;
             
             for(int i = 0; i < tempBook.size(); i++){
                 int tempDistance = 0;
-
+                
                 for(int x = 0; x < BSIZE; x++){
                     for(int y = 0; y < BSIZE; y++){
-                        for(int z = 0; z < RGB; z++){
-                            tempDistance += Math.abs(cluster[x][y][z] - tempBook.get(i)[x][y][z]);
-                        }
+                        tempDistance += Math.abs(cluster[x][y] - tempBook.get(i)[x][y]);
                     }
                 }
                 minDistanceCluster = (minDistance > tempDistance) ? i : minDistanceCluster;
@@ -153,11 +160,11 @@ public class VQ_3D {
         return nearestVectors;
     }
 
-    public int[][][] OverwriteImage(int width, int height) {
-        int[][][] newPixelArray = new int[width][height][RGB];
+    public int[][] OverwriteImage(int width, int height, ArrayList<float[][]> codeBook, ArrayList<float[][]> clusters) {
+        int[][] newPixelArray = new int[width][height];
     
         for (int i = 0; i < clusters.size(); i++) {
-            float[][][] cluster = clusters.get(i);
+            float[][] cluster = clusters.get(i);
     
             // Find the closest codeBook entry
             int minDistance = Integer.MAX_VALUE;
@@ -168,9 +175,7 @@ public class VQ_3D {
 
                 for (int x = 0; x < BSIZE; x++) {
                     for (int y = 0; y < BSIZE; y++) {
-                        for(int z = 0; z < RGB; z++){
-                            tempDistance += Math.abs(cluster[x][y][z] - codeBook.get(j)[x][y][z]);
-                        }
+                        tempDistance += Math.abs(cluster[x][y] - codeBook.get(j)[x][y]);
                     }
                 }
 
@@ -181,17 +186,13 @@ public class VQ_3D {
             }
     
             // Set new pixel array values based on the chosen codeBook entry
-            float[][][] chosenCodeBookEntry = codeBook.get(minDistanceCluster);
-            int blockIndex = i / BSIZE;  // Calculate the current block index
-            int xOffset = (blockIndex % (width / BSIZE)) * BSIZE;
-            int yOffset = (blockIndex / (width / BSIZE)) * BSIZE;
+            float[][] chosenCodeBookEntry = codeBook.get(minDistanceCluster);
+            int yOffset = (i % (width / BSIZE)) * BSIZE;
+            int xOffset = (i / (width / BSIZE)) * BSIZE;
 
-    
             for (int x = 0; x < BSIZE; x++) {
                 for (int y = 0; y < BSIZE; y++) {
-                    for(int z = 0; z < RGB; z++){
-                        newPixelArray[x + xOffset][y + yOffset][z] = (int) chosenCodeBookEntry[x][y][z];
-                    }
+                    newPixelArray[y + xOffset][x + yOffset] = (int) chosenCodeBookEntry[x][y];
                 }
             }
         }
@@ -203,14 +204,25 @@ public class VQ_3D {
         try{
             KSIZE = kSize;
             BSIZE = blockSize;
-            int[][][] pixelArray = ProcessRGBImage(imageFile);
+            ArrayList<int[][]> rgbArrayList = ProcessRGBImage(imageFile); 
+            int[][] pixelArrayR = rgbArrayList.get(0);
+            int[][] pixelArrayG = rgbArrayList.get(1);
+            int[][] pixelArrayB = rgbArrayList.get(2);
 
-            GenerateClusters(pixelArray);
-            SplitClusters(GetAverageEntry(clusters));
-            pixelArray = OverwriteImage(WIDTH, HEIGHT);
+            GenerateClusters(pixelArrayR, 0);
+            GenerateClusters(pixelArrayG, 1);
+            GenerateClusters(pixelArrayB, 2);
+
+            SplitClusters(GetAverageEntry(clustersR), codeBookR, clustersR);
+            SplitClusters(GetAverageEntry(clustersG), codeBookG, clustersG);
+            SplitClusters(GetAverageEntry(clustersB), codeBookB, clustersB);
+
+            pixelArrayR = OverwriteImage(WIDTH, HEIGHT, codeBookR, clustersR);
+            pixelArrayG = OverwriteImage(WIDTH, HEIGHT, codeBookG, clustersG);
+            pixelArrayB = OverwriteImage(WIDTH, HEIGHT, codeBookB, clustersB);
             
             String name = imageFile.getName().replaceFirst("[.][^.]+$", "");
-            WriteCompressedImage(pixelArray, name);
+            WriteCompressedImage(pixelArrayR, pixelArrayG, pixelArrayB, name);
         }
         catch(Exception e){
             throw e;
@@ -218,15 +230,15 @@ public class VQ_3D {
     }
 
     // FOR COMPRESSED IMAGE OUTPUT
-    public void WriteCompressedImage(int[][][] pixelArray, String name) {
+    public void WriteCompressedImage(int[][] pixelArrayR, int[][] pixelArrayG, int[][] pixelArrayB, String name) {
         String path = System.getProperty("user.dir") + "\\Compressed_"+ name + "_RGB.png";
-        BufferedImage image = new BufferedImage(pixelArray.length, pixelArray[0].length, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(pixelArrayG.length, pixelArrayG[0].length, BufferedImage.TYPE_INT_RGB);
         
-        for (int x = 0; x < pixelArray.length; x++) {
-            for (int y = 0; y < pixelArray[0].length; y++) {
-                int r = pixelArray[x][y][0];
-                int g = pixelArray[x][y][1];
-                int b = pixelArray[x][y][2];
+        for (int x = 0; x < pixelArrayG.length; x++) {
+            for (int y = 0; y < pixelArrayG[0].length; y++) {
+                int r = pixelArrayR[x][y];
+                int g = pixelArrayG[x][y];
+                int b = pixelArrayB[x][y];
 
                 int rgb = (r << 16) | (g << 8) | b;
                 image.setRGB(x, y, rgb);
@@ -241,7 +253,7 @@ public class VQ_3D {
         }
     }
 
-    public void decompress(File compressedFile) throws Exception{
-        // int[][][] compressedImage = readCompressedFile(compressedFile);
+    void decompress(){
+        
     }
 }
