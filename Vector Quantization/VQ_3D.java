@@ -193,25 +193,24 @@ public class VQ_3D {
             float[][] chosenCodeBookEntry = codeBook.get(minDistanceCluster);
             int yOffset = (i % (width / BSIZE)) * BSIZE;
             int xOffset = (i / (width / BSIZE)) * BSIZE;
-            codedImage[xOffset/BSIZE][yOffset/BSIZE] = minDistanceCluster;
-
+            switch (color){
+                case 'r':
+                    codedRImage[xOffset/BSIZE][yOffset/BSIZE] = minDistanceCluster;
+                    break;
+                case 'b':
+                    codedBImage [xOffset/BSIZE][yOffset/BSIZE] = minDistanceCluster;
+                    break;
+                case 'g':
+                    codedGImage [xOffset/BSIZE][yOffset/BSIZE] = minDistanceCluster;
+                    break;
+            }
             for (int x = 0; x < BSIZE; x++) {
                 for (int y = 0; y < BSIZE; y++) {
                     newPixelArray[y + xOffset][x + yOffset] = (int) chosenCodeBookEntry[x][y];
                 }
             }
         }
-        switch (color){
-            case 'r':
-                codedRImage = codedImage;
-                break;
-            case 'b':
-                codedBImage = codedImage;
-                break;
-            case 'g':
-                codedGImage = codedImage;
-                break;
-        }
+
     
         return newPixelArray;
     }
@@ -279,10 +278,10 @@ public class VQ_3D {
         File compressedFile = new File(path);
 
         try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream(compressedFile))) {
-            dataOut.writeShort(KSIZE);
-            dataOut.writeShort(BSIZE);
-            dataOut.writeShort(WIDTH);
-            dataOut.writeShort(HEIGHT);
+            dataOut.writeShort((short)KSIZE);
+            dataOut.writeShort((short)BSIZE);
+            dataOut.writeShort((short)WIDTH);
+            dataOut.writeShort((short)HEIGHT);
 
             for (int i = 0; i < KSIZE; i++) {
                 dataOut.writeByte(0);
@@ -320,9 +319,9 @@ public class VQ_3D {
 
             for (int i=0; i < codedRImage.length; i++){
                 for (int j = 0; j < codedRImage[0].length; j++){
-                    dataOut.writeShort(codedRImage[i][j]);
-                    dataOut.writeShort(codedBImage[i][j]);
-                    dataOut.writeShort(codedGImage[i][j]);
+                    dataOut.writeShort((short)codedRImage[i][j]);
+                    dataOut.writeShort((short)codedBImage[i][j]);
+                    dataOut.writeShort((short)codedGImage[i][j]);
                 }
             }
         } catch (Exception e) {
