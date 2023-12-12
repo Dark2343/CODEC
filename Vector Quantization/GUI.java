@@ -15,6 +15,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class GUI implements ActionListener {
     File imageFile;
+    String fileExtension;
     JPanel panel= new JPanel();
     JButton select = new JButton();
     JLabel textLabel = new JLabel();
@@ -29,7 +30,8 @@ public class GUI implements ActionListener {
     ButtonGroup radioGroup = new ButtonGroup();
     JRadioButton grayImage = new JRadioButton();
     JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir")); // GUI to select files
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "png", "jpg", "jpeg"); // Filter to choose specific files only
+    FileNameExtensionFilter imageFilter = new FileNameExtensionFilter("Image Files", "png", "jpg", "jpeg"); // Filter to choose specific files only
+    FileNameExtensionFilter binaryFilter = new FileNameExtensionFilter("Binary Files", "bin"); // Filter to choose specific files only
     
     public GUI(){
         panel.setLayout(null);
@@ -37,22 +39,22 @@ public class GUI implements ActionListener {
         compress.setText("Compress");
         decompress.setText("Decompress");
         kSizeLabel.setText("K-Size");
-        blockSizeLabel.setText("Block Size");
+        blockSizeLabel.setText("B-Size");
         textLabel.setText("Select a file to proceed");
         grayImage.setText("Gray");
         rgbImage.setText("RGB");
         
         textLabel.setBounds(199, 80, 300, 60);
         textLabel.setFont(new Font("", Font.BOLD, 16));
-        select.setBounds(30, 210, 100, 30);
-        compress.setBounds(320, 210, 100, 30);
-        decompress.setBounds(430, 210, 110, 30);
-        kSizeLabel.setBounds(178, 120, 100, 25);
-        kSizeField.setBounds(228, 120, 50, 25);
-        blockSizeLabel.setBounds(160, 150, 100, 25);
-        blockSizeField.setBounds(228, 150, 50, 25);
-        grayImage.setBounds(290, 120, 55, 25);
-        rgbImage.setBounds(350, 120, 55, 25);
+        select.setBounds(150, 210, 100, 30);
+        compress.setBounds(300, 210, 100, 30);
+        decompress.setBounds(300, 210, 110, 30);
+        kSizeLabel.setBounds(183, 150, 100, 25);
+        kSizeField.setBounds(228, 150, 50, 25);
+        blockSizeLabel.setBounds(285, 150, 110, 25);
+        blockSizeField.setBounds(328, 150, 50, 25);
+        grayImage.setBounds(210, 115, 55, 25);
+        rgbImage.setBounds(279, 115, 55, 25);
 
         radioGroup.add(grayImage);
         radioGroup.add(rgbImage);
@@ -94,15 +96,26 @@ public class GUI implements ActionListener {
     public void actionPerformed(ActionEvent actionEvent){
         if (actionEvent.getActionCommand().equals("Select File")) {
             if (selectFile()) {
-                compress.setVisible(true);
-                decompress.setVisible(true);
-                kSizeLabel.setVisible(true);
-                kSizeField.setVisible(true);
-                blockSizeLabel.setVisible(true);
-                blockSizeField.setVisible(true);
+                fileExtension = imageFile.getName().substring(imageFile.getName().lastIndexOf(".") + 1);
+                if (fileExtension.equals("bin")) {
+                    decompress.setVisible(true);
+                    compress.setVisible(false);
+                    kSizeLabel.setVisible(false);
+                    kSizeField.setVisible(false);
+                    blockSizeLabel.setVisible(false);
+                    blockSizeField.setVisible(false);
+                }
+                else{
+                    compress.setVisible(true);
+                    kSizeLabel.setVisible(true);
+                    kSizeField.setVisible(true);
+                    blockSizeLabel.setVisible(true);
+                    blockSizeField.setVisible(true);
+                    decompress.setVisible(false);
+                }
                 grayImage.setVisible(true);
                 rgbImage.setVisible(true);
-                textLabel.setBounds(190, 60, 250, 60);
+                textLabel.setBounds(167, 60, 250, 60);
                 textLabel.setText("File selected: " + imageFile.getName());
             }
         }
@@ -126,8 +139,6 @@ public class GUI implements ActionListener {
                     // Throws exception if input isn't int
                     blockSize = Integer.parseInt(blockSizeField.getText());
                 }
-
-
 
                 if (grayImage.isSelected()) {
                     VQ_2D vq = new VQ_2D();
@@ -174,7 +185,8 @@ public class GUI implements ActionListener {
     }
 
     public Boolean selectFile(){
-        fileChooser.setFileFilter(filter);
+        fileChooser.setFileFilter(binaryFilter);
+        fileChooser.setFileFilter(imageFilter);
         fileChooser.setApproveButtonText("Select");
         int returnVal = fileChooser.showOpenDialog(fileChooser);
 

@@ -225,8 +225,6 @@ public class VQ_3D {
             int[][] pixelArrayG = rgbArrayList.get(1);
             int[][] pixelArrayB = rgbArrayList.get(2);
 
-
-
             GenerateClusters(pixelArrayR, 0);
             GenerateClusters(pixelArrayG, 1);
             GenerateClusters(pixelArrayB, 2);
@@ -254,7 +252,7 @@ public class VQ_3D {
 
     // FOR COMPRESSED IMAGE OUTPUT
     public void WriteCompressedImage(int[][] pixelArrayR, int[][] pixelArrayG, int[][] pixelArrayB, String name) {
-        String path = System.getProperty("user.dir") + "\\Compressed_"+ name + "_RGB.png";
+        String path = System.getProperty("user.dir") + "\\CP_"+ name + "_RGB.png";
         BufferedImage image = new BufferedImage(pixelArrayG.length, pixelArrayG[0].length, BufferedImage.TYPE_INT_RGB);
         
         for (int x = 0; x < pixelArrayG.length; x++) {
@@ -277,7 +275,7 @@ public class VQ_3D {
     }
 
     public void SaveCompressedFile(int[][] pixelArrayR, int[][] pixelArrayG, int[][] pixelArrayB, String name) throws Exception {
-        String path = System.getProperty("user.dir") + "\\Compressed_" + name + "_RGB.bin";
+        String path = System.getProperty("user.dir") + "\\CP_" + name + "_RGB.bin";
         File compressedFile = new File(path);
 
         try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream(compressedFile))) {
@@ -432,8 +430,9 @@ public class VQ_3D {
         }
     }
 
-    public void WriteDecompressedImage(int[][] decompressedImageR,int[][] decompressedImageG,int[][] decompressedImageB, String name) throws Exception{
-        String path = System.getProperty("user.dir") + "\\Decompressed_" + name + "_RBG.png";
+    public void WriteDecompressedImage(int[][] decompressedImageR,int[][] decompressedImageG,int[][] decompressedImageB, String Name) throws Exception{
+        String name = Name.substring(Name.indexOf("CP_") + 3);
+        String path = System.getProperty("user.dir") + "\\DP_" + name + ".png";
         BufferedImage image = new BufferedImage(decompressedImageR.length, decompressedImageR[0].length, BufferedImage.TYPE_INT_RGB);
         for (int x = 0; x < decompressedImageR.length; x++) {
             for (int y = 0; y < decompressedImageR[0].length; y++) {
