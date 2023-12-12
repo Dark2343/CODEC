@@ -201,7 +201,7 @@ public class VQ_2D {
 
     // FOR COMPRESSED IMAGE OUTPUT
     public void WriteCompressedImage(int[][] pixelArray, String name) {
-        String path = System.getProperty("user.dir") + "\\CP_"+ name + "_Gray.png";
+        String path = System.getProperty("user.dir") + "\\CP_"+ name + ".png";
         BufferedImage image = new BufferedImage(pixelArray.length, pixelArray[0].length, BufferedImage.TYPE_BYTE_GRAY);
         for (int x = 0; x < pixelArray.length; x++) {
             for (int y = 0; y < pixelArray[0].length; y++) {
@@ -222,7 +222,7 @@ public class VQ_2D {
     // FOR BINARY FILE OUTPUT
     // Modify SaveCompressedFile method
 public void SaveCompressedFile(int[][] compressedImage, String name) throws Exception {
-    String path = System.getProperty("user.dir") + "\\CP_" + name + "_Gray.bin";
+    String path = System.getProperty("user.dir") + "\\CP_" + name + ".bin";
     File compressedFile = new File(path);
 
 
