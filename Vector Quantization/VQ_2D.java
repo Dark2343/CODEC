@@ -220,89 +220,87 @@ public class VQ_2D {
     }
 
     // FOR BINARY FILE OUTPUT
-    // Modify SaveCompressedFile method
-public void SaveCompressedFile(int[][] compressedImage, String name) throws Exception {
-    String path = System.getProperty("user.dir") + "\\Compressed_" + name + ".bin";
-    File compressedFile = new File(path);
+    public void SaveCompressedFile(int[][] compressedImage, String name) throws Exception {
+        String path = System.getProperty("user.dir") + "\\Compressed_" + name + ".bin";
+        File compressedFile = new File(path);
 
-    try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream(compressedFile))) {
-        dataOut.writeShort(KSIZE);
-        dataOut.writeShort(BSIZE);
-        dataOut.writeShort(WIDTH);
-        dataOut.writeShort(HEIGHT);
+        try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream(compressedFile))) {
+            dataOut.writeShort(KSIZE);
+            dataOut.writeShort(BSIZE);
+            dataOut.writeShort(WIDTH);
+            dataOut.writeShort(HEIGHT);
 
-        for (int i = 0; i < KSIZE; i++) {
-            dataOut.writeByte(0);
-            float[][] entry = codeBook.get(i);
+            for (int i = 0; i < KSIZE; i++) {
+                dataOut.writeByte(0);
+                float[][] entry = codeBook.get(i);
 
-            for (int j = 0; j < BSIZE; j++) {
-                for (int k = 0; k < BSIZE; k++) {
-                    // Convert float to short before writing
-                    dataOut.writeShort((short) entry[j][k]);
-                }
-            }
-        }
-
-        for (int i=0; i < codedImage.length; i++){
-            for (int j = 0; j < codedImage[0].length; j++){
-                dataOut.writeShort(codedImage[i][j]);
-            }
-        }
-    } catch (Exception e) {
-        throw e;
-    }
-}
-
-// Modify decompress method
-public void decompress(File compressedFile) throws Exception {
-    try (DataInputStream dataIn = new DataInputStream(new FileInputStream(compressedFile))) {
-        KSIZE = dataIn.readShort();
-        BSIZE = dataIn.readShort();
-        WIDTH = dataIn.readShort();
-        HEIGHT = dataIn.readShort();
-        int[][] decompressedImage = new int[WIDTH][HEIGHT];
-
-        for (int i = 0; i < KSIZE; i++) {
-            dataIn.readByte();
-            float[][] entry = new float[BSIZE][BSIZE];
-
-            for (int j = 0; j < BSIZE; j++) {
-                for (int k = 0; k < BSIZE; k++) {
-                    // Convert short to float after reading
-                    entry[j][k] = dataIn.readShort();
-                }
-            }
-
-            codeBook.add(entry);
-        }
-
-        codedImage = new int[WIDTH/BSIZE][HEIGHT/BSIZE];
-        for (int i = 0; i < codedImage.length; i++){
-            for (int j = 0; j < codedImage[0]. length; j++){
-                codedImage[i][j] = dataIn.readShort();
-            }
-        }
-
-        // rebuild Image
-        for (int i = 0; i < codedImage.length; i++){
-            for (int j = 0; j < codedImage[0]. length; j++){
-                float[][] cluster = codeBook.get(codedImage[i][j]);
-                for (int x = 0; x < BSIZE; x++){
-                    for (int y = 0; y < BSIZE; y++) {
-                        decompressedImage[(i * BSIZE) + x][(j * BSIZE) + y] = (int) cluster[x][y];
+                for (int j = 0; j < BSIZE; j++) {
+                    for (int k = 0; k < BSIZE; k++) {
+                        // Convert float to short before writing
+                        dataOut.writeShort((short) entry[j][k]);
                     }
                 }
             }
+
+            for (int i=0; i < codedImage.length; i++){
+                for (int j = 0; j < codedImage[0].length; j++){
+                    dataOut.writeShort(codedImage[i][j]);
+                }
+            }
+        } catch (Exception e) {
+            throw e;
         }
-        String name = compressedFile.getName().replaceFirst("[.][^.]+$", "");
-        WriteDecompressedImage(decompressedImage, name);
-    } catch (Exception e) {
-        throw e;
     }
-}
+
+    public void decompress(File compressedFile) throws Exception {
+        try (DataInputStream dataIn = new DataInputStream(new FileInputStream(compressedFile))) {
+            KSIZE = dataIn.readShort();
+            BSIZE = dataIn.readShort();
+            WIDTH = dataIn.readShort();
+            HEIGHT = dataIn.readShort();
+            int[][] decompressedImage = new int[WIDTH][HEIGHT];
+
+            for (int i = 0; i < KSIZE; i++) {
+                dataIn.readByte();
+                float[][] entry = new float[BSIZE][BSIZE];
+
+                for (int j = 0; j < BSIZE; j++) {
+                    for (int k = 0; k < BSIZE; k++) {
+                        // Convert short to float after reading
+                        entry[j][k] = dataIn.readShort();
+                    }
+                }
+
+                codeBook.add(entry);
+            }
+
+            codedImage = new int[WIDTH/BSIZE][HEIGHT/BSIZE];
+            for (int i = 0; i < codedImage.length; i++){
+                for (int j = 0; j < codedImage[0]. length; j++){
+                    codedImage[i][j] = dataIn.readShort();
+                }
+            }
+
+            // rebuild Image
+            for (int i = 0; i < codedImage.length; i++){
+                for (int j = 0; j < codedImage[0]. length; j++){
+                    float[][] cluster = codeBook.get(codedImage[i][j]);
+                    for (int x = 0; x < BSIZE; x++){
+                        for (int y = 0; y < BSIZE; y++) {
+                            decompressedImage[(i * BSIZE) + x][(j * BSIZE) + y] = (int) cluster[x][y];
+                        }
+                    }
+                }
+            }
+            String name = compressedFile.getName().replaceFirst("[.][^.]+$", "");
+            WriteDecompressedImage(decompressedImage, name);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
     public void WriteDecompressedImage(int[][] decompressedImage, String name) throws Exception{
-        String path = System.getProperty("user.dir") + "\\Decompressed_" + name + "_Grayscaled.png";
+        String path = System.getProperty("user.dir") + "\\Decompressed_" + name + "_Gray.png";
         BufferedImage image = new BufferedImage(decompressedImage.length, decompressedImage[0].length, BufferedImage.TYPE_BYTE_GRAY);
         for (int x = 0; x < decompressedImage.length; x++) {
             for (int y = 0; y < decompressedImage[0].length; y++) {
