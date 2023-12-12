@@ -15,6 +15,7 @@ public class VQ_2D {
     int WIDTH, HEIGHT;
     ArrayList<float[][]> clusters = new ArrayList<float[][]>();
     ArrayList<float[][]> codeBook = new ArrayList<float[][]>();
+    int [][] codedImage;
     
     public int[][] ProcessGrayScaleImage(File imageFile) throws Exception {
         try{
@@ -139,6 +140,7 @@ public class VQ_2D {
 
     public int[][] OverwriteImage(int width, int height) {
         int[][] newPixelArray = new int[width][height];
+        codedImage = new int[width/BSIZE][height/BSIZE];
     
         for (int i = 0; i < clusters.size(); i++) {
             float[][] cluster = clusters.get(i);
@@ -164,9 +166,10 @@ public class VQ_2D {
     
             // Set new pixel array values based on the chosen codeBook entry
             float[][] chosenCodeBookEntry = codeBook.get(minDistanceCluster);
+
             int yOffset = (i % (width / BSIZE)) * BSIZE;  // Corrected calculation
             int xOffset = (i / (width / BSIZE)) * BSIZE;  // Corrected calculation
-    
+            codedImage[xOffset/BSIZE][yOffset/BSIZE] = minDistanceCluster;
             for (int x = 0; x < BSIZE; x++) {
                 for (int y = 0; y < BSIZE; y++) {
                     newPixelArray[y + xOffset][x + yOffset] = (int) chosenCodeBookEntry[x][y];
@@ -240,22 +243,9 @@ public void SaveCompressedFile(int[][] compressedImage, String name) throws Exce
             }
         }
 
-        for (int i = 0; i < compressedImage.length; i += BSIZE) {
-            for (int j = 0; j < compressedImage[0].length; j += BSIZE) {
-                float[][] entry = new float[BSIZE][BSIZE];
-
-                for (int x = 0; x < BSIZE; x++) {
-                    for (int y = 0; y < BSIZE; y++) {
-                        entry[x][y] = compressedImage[x + i][y + j];
-                    }
-                }
-
-                for (int x = 0; x < BSIZE; x++) {
-                    for (int y = 0; y < BSIZE; y++) {
-                        // Convert float to short before writing
-                        dataOut.writeShort((short) entry[x][y]);
-                    }
-                }
+        for (int i=0; i < codedImage.length; i++){
+            for (int j = 0; j < codedImage[0].length; j++){
+                dataOut.writeShort(codedImage[i][j]);
             }
         }
     } catch (Exception e) {
@@ -286,47 +276,24 @@ public void decompress(File compressedFile) throws Exception {
             codeBook.add(entry);
         }
 
-        for (int i = 0; i < WIDTH; i += BSIZE) {
-            for (int j = 0; j < HEIGHT; j += BSIZE) {
-                float[][] entry = new float[BSIZE][BSIZE];
+        codedImage = new int[WIDTH/BSIZE][HEIGHT/BSIZE];
+        for (int i = 0; i < codedImage.length; i++){
+            for (int j = 0; j < codedImage[0]. length; j++){
+                codedImage[i][j] = dataIn.readShort();
+            }
+        }
 
-                for (int x = 0; x < BSIZE; x++) {
+        // rebuild Image
+        for (int i = 0; i < codedImage.length; i++){
+            for (int j = 0; j < codedImage[0]. length; j++){
+                float[][] cluster = codeBook.get(codedImage[i][j]);
+                for (int x = 0; x < BSIZE; x++){
                     for (int y = 0; y < BSIZE; y++) {
-                        // Convert short to float after reading
-                        entry[x][y] = dataIn.readShort();
-                    }
-                }
-
-                int minDistance = Integer.MAX_VALUE;
-                int minDistanceCluster = -1;
-
-                for (int x = 0; x < codeBook.size(); x++) {
-                    int tempDistance = 0;
-
-                    for (int y = 0; y < BSIZE; y++) {
-                        for (int z = 0; z < BSIZE; z++) {
-                            tempDistance += Math.abs(entry[y][z] - codeBook.get(x)[y][z]);
-                        }
-                    }
-
-                    if (tempDistance < minDistance) {
-                        minDistance = tempDistance;
-                        minDistanceCluster = x;
-                    }
-                }
-
-                float[][] chosenCodeBookEntry = codeBook.get(minDistanceCluster);
-                int yOffset = (i % (WIDTH / BSIZE)) * BSIZE;
-                int xOffset = (j / (WIDTH / BSIZE)) * BSIZE;
-
-                for (int x = 0; x < BSIZE; x++) {
-                    for (int y = 0; y < BSIZE; y++) {
-                        decompressedImage[x + xOffset][y + yOffset] = (int) chosenCodeBookEntry[x][y];
+                        decompressedImage[(i * BSIZE) + x][(j * BSIZE) + y] = (int) cluster[x][y];
                     }
                 }
             }
         }
-
         String name = compressedFile.getName().replaceFirst("[.][^.]+$", "");
         WriteDecompressedImage(decompressedImage, name);
     } catch (Exception e) {
