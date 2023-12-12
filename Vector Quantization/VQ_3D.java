@@ -1,6 +1,5 @@
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -17,6 +16,10 @@ public class VQ_3D {
     ArrayList<float[][]> codeBookR = new ArrayList<float[][]>();
     ArrayList<float[][]> codeBookG = new ArrayList<float[][]>();
     ArrayList<float[][]> codeBookB = new ArrayList<float[][]>();
+
+    int[][] codedRImage;
+    int[][] codedGImage;
+    int[][] codedBImage;
 
     public ArrayList<int[][]> ProcessRGBImage(File imageFile) throws Exception {
         try{
@@ -160,9 +163,10 @@ public class VQ_3D {
         return nearestVectors;
     }
 
-    public int[][] OverwriteImage(int width, int height, ArrayList<float[][]> codeBook, ArrayList<float[][]> clusters) {
+    public int[][] OverwriteImage(int width, int height, ArrayList<float[][]> codeBook, ArrayList<float[][]> clusters, char color) {
         int[][] newPixelArray = new int[width][height];
-    
+        int[][] codedImage = new int[width][height];
+
         for (int i = 0; i < clusters.size(); i++) {
             float[][] cluster = clusters.get(i);
     
@@ -189,12 +193,24 @@ public class VQ_3D {
             float[][] chosenCodeBookEntry = codeBook.get(minDistanceCluster);
             int yOffset = (i % (width / BSIZE)) * BSIZE;
             int xOffset = (i / (width / BSIZE)) * BSIZE;
+            codedImage[xOffset/BSIZE][yOffset/BSIZE] = minDistanceCluster;
 
             for (int x = 0; x < BSIZE; x++) {
                 for (int y = 0; y < BSIZE; y++) {
                     newPixelArray[y + xOffset][x + yOffset] = (int) chosenCodeBookEntry[x][y];
                 }
             }
+        }
+        switch (color){
+            case 'r':
+                codedRImage = codedImage;
+                break;
+            case 'b':
+                codedBImage = codedImage;
+                break;
+            case 'g':
+                codedGImage = codedImage;
+                break;
         }
     
         return newPixelArray;
@@ -209,6 +225,8 @@ public class VQ_3D {
             int[][] pixelArrayG = rgbArrayList.get(1);
             int[][] pixelArrayB = rgbArrayList.get(2);
 
+
+
             GenerateClusters(pixelArrayR, 0);
             GenerateClusters(pixelArrayG, 1);
             GenerateClusters(pixelArrayB, 2);
@@ -217,12 +235,17 @@ public class VQ_3D {
             SplitClusters(GetAverageEntry(clustersG), codeBookG, clustersG);
             SplitClusters(GetAverageEntry(clustersB), codeBookB, clustersB);
 
-            pixelArrayR = OverwriteImage(WIDTH, HEIGHT, codeBookR, clustersR);
-            pixelArrayG = OverwriteImage(WIDTH, HEIGHT, codeBookG, clustersG);
-            pixelArrayB = OverwriteImage(WIDTH, HEIGHT, codeBookB, clustersB);
+            codedRImage = new int[WIDTH/BSIZE][HEIGHT/BSIZE];
+            codedGImage = new int[WIDTH/BSIZE][HEIGHT/BSIZE];
+            codedBImage = new int[WIDTH/BSIZE][HEIGHT/BSIZE];
+
+            pixelArrayR = OverwriteImage(WIDTH, HEIGHT, codeBookR, clustersR, 'r');
+            pixelArrayG = OverwriteImage(WIDTH, HEIGHT, codeBookG, clustersG, 'g');
+            pixelArrayB = OverwriteImage(WIDTH, HEIGHT, codeBookB, clustersB, 'b');
             
             String name = imageFile.getName().replaceFirst("[.][^.]+$", "");
             WriteCompressedImage(pixelArrayR, pixelArrayG, pixelArrayB, name);
+            SaveCompressedFile(pixelArrayR, pixelArrayG, pixelArrayB, name);
         }
         catch(Exception e){
             throw e;
@@ -253,7 +276,180 @@ public class VQ_3D {
         }
     }
 
-    void decompress(){
-        
+    public void SaveCompressedFile(int[][] pixelArrayR, int[][] pixelArrayG, int[][] pixelArrayB, String name) throws Exception {
+        String path = System.getProperty("user.dir") + "\\Compressed_" + name + "_RGB.bin";
+        File compressedFile = new File(path);
+
+        try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream(compressedFile))) {
+            dataOut.writeShort(KSIZE);
+            dataOut.writeShort(BSIZE);
+            dataOut.writeShort(WIDTH);
+            dataOut.writeShort(HEIGHT);
+
+            for (int i = 0; i < KSIZE; i++) {
+                dataOut.writeByte(0);
+                float[][] entry = codeBookR.get(i);
+
+                for (int j = 0; j < BSIZE; j++) {
+                    for (int k = 0; k < BSIZE; k++) {
+                        // Convert float to short before writing
+                        dataOut.writeShort((short) entry[j][k]);
+                    }
+                }
+            }
+            for (int i = 0; i < KSIZE; i++) {
+                dataOut.writeByte(0);
+                float[][] entry = codeBookG.get(i);
+
+                for (int j = 0; j < BSIZE; j++) {
+                    for (int k = 0; k < BSIZE; k++) {
+                        // Convert float to short before writing
+                        dataOut.writeShort((short) entry[j][k]);
+                    }
+                }
+            }
+            for (int i = 0; i < KSIZE; i++) {
+                dataOut.writeByte(0);
+                float[][] entry = codeBookB.get(i);
+
+                for (int j = 0; j < BSIZE; j++) {
+                    for (int k = 0; k < BSIZE; k++) {
+                        // Convert float to short before writing
+                        dataOut.writeShort((short) entry[j][k]);
+                    }
+                }
+            }
+
+            for (int i=0; i < codedRImage.length; i++){
+                for (int j = 0; j < codedRImage[0].length; j++){
+                    dataOut.writeShort(codedRImage[i][j]);
+                }
+            }
+            for (int i=0; i < codedGImage.length; i++){
+                for (int j = 0; j < codedGImage[0].length; j++){
+                    dataOut.writeShort(codedGImage[i][j]);
+                }
+            }
+            for (int i=0; i < codedBImage.length; i++){
+                for (int j = 0; j < codedBImage[0].length; j++){
+                    dataOut.writeShort(codedBImage[i][j]);
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    // Modify decompress method
+    public void decompress(File compressedFile) throws Exception {
+        try (DataInputStream dataIn = new DataInputStream(new FileInputStream(compressedFile))) {
+            KSIZE = dataIn.readShort();
+            BSIZE = dataIn.readShort();
+            WIDTH = dataIn.readShort();
+            HEIGHT = dataIn.readShort();
+            int[][] decompressedImageR = new int[WIDTH][HEIGHT];
+            int[][] decompressedImageG = new int[WIDTH][HEIGHT];
+            int[][] decompressedImageB = new int[WIDTH][HEIGHT];
+
+            for (int i = 0; i < KSIZE; i++) {
+                dataIn.readByte();
+                float[][] entry = new float[BSIZE][BSIZE];
+
+                for (int j = 0; j < BSIZE; j++) {
+                    for (int k = 0; k < BSIZE; k++) {
+                        // Convert short to float after reading
+                        entry[j][k] = dataIn.readShort();
+                    }
+                }
+
+                codeBookR.add(entry);
+            }
+            for (int i = 0; i < KSIZE; i++) {
+                dataIn.readByte();
+                float[][] entry = new float[BSIZE][BSIZE];
+
+                for (int j = 0; j < BSIZE; j++) {
+                    for (int k = 0; k < BSIZE; k++) {
+                        // Convert short to float after reading
+                        entry[j][k] = dataIn.readShort();
+                    }
+                }
+
+                codeBookG.add(entry);
+            }
+            for (int i = 0; i < KSIZE; i++) {
+                dataIn.readByte();
+                float[][] entry = new float[BSIZE][BSIZE];
+
+                for (int j = 0; j < BSIZE; j++) {
+                    for (int k = 0; k < BSIZE; k++) {
+                        // Convert short to float after reading
+                        entry[j][k] = dataIn.readShort();
+                    }
+                }
+
+                codeBookB.add(entry);
+            }
+
+            codedRImage = new int[WIDTH/BSIZE][HEIGHT/BSIZE];
+            codedGImage = new int[WIDTH/BSIZE][HEIGHT/BSIZE];
+            codedBImage = new int[WIDTH/BSIZE][HEIGHT/BSIZE];
+            for (int i = 0; i < codedRImage.length; i++){
+                for (int j = 0; j < codedRImage[0]. length; j++){
+                    codedRImage[i][j] = dataIn.readShort();
+                }
+            }
+            for (int i = 0; i < codedGImage.length; i++){
+                for (int j = 0; j < codedGImage[0]. length; j++){
+                    codedGImage[i][j] = dataIn.readShort();
+                }
+            }
+            for (int i = 0; i < codedBImage.length; i++){
+                for (int j = 0; j < codedBImage[0]. length; j++){
+                    codedBImage[i][j] = dataIn.readShort();
+                }
+            }
+
+            // rebuild Image
+            for (int i = 0; i < codedRImage.length; i++){
+                for (int j = 0; j < codedRImage[0]. length; j++){
+                    float[][] clusterR = codeBookR.get(codedRImage[i][j]);
+                    float[][] clusterG = codeBookG.get(codedGImage[i][j]);
+                    float[][] clusterB= codeBookB.get(codedBImage[i][j]);
+                    for (int x = 0; x < BSIZE; x++){
+                        for (int y = 0; y < BSIZE; y++) {
+                            decompressedImageR[(i * BSIZE) + x][(j * BSIZE) + y] = (int) clusterR[x][y];
+                            decompressedImageG[(i * BSIZE) + x][(j * BSIZE) + y] = (int) clusterG[x][y];
+                            decompressedImageB[(i * BSIZE) + x][(j * BSIZE) + y] = (int) clusterB[x][y];
+                        }
+                    }
+                }
+            }
+            String name = compressedFile.getName().replaceFirst("[.][^.]+$", "");
+            WriteDecompressedImage(decompressedImageR,decompressedImageG,decompressedImageB, name);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public void WriteDecompressedImage(int[][] decompressedImageR,int[][] decompressedImageG,int[][] decompressedImageB, String name) throws Exception{
+        String path = System.getProperty("user.dir") + "\\Decompressed_" + name + "_RBG.png";
+        BufferedImage image = new BufferedImage(decompressedImageR.length, decompressedImageR[0].length, BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < decompressedImageR.length; x++) {
+            for (int y = 0; y < decompressedImageR[0].length; y++) {
+                int rValue = decompressedImageR[x][y];
+                int gValue = decompressedImageG[x][y];
+                int bValue = decompressedImageB[x][y];
+                int pixelValue = (rValue << 16) | (gValue << 8) | bValue;
+                image.setRGB(x, y, pixelValue);
+            }
+        }
+
+        File ImageFile = new File(path);
+        try {
+            ImageIO.write(image, "png", ImageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

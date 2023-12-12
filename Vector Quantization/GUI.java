@@ -141,8 +141,8 @@ public class GUI implements ActionListener {
                     throw new Exception();
                 }
                 
-                textLabel.setBounds(200, 60, 250, 60);
-                textLabel.setText("Compression completed");
+                textLabel.setBounds(197, 60, 250, 60);
+                textLabel.setText("Compression completed!");
             }
             catch(Exception e){
                 e.printStackTrace();
@@ -164,7 +164,7 @@ public class GUI implements ActionListener {
                     throw new Exception();
                 }
                 textLabel.setBounds(190, 60, 250, 60);
-                textLabel.setText("Decompression completed");
+                textLabel.setText("Decompression completed!");
             }
             catch(Exception e){
                 textLabel.setBounds(195, 60, 250, 60);
