@@ -323,16 +323,8 @@ public class VQ_3D {
             for (int i=0; i < codedRImage.length; i++){
                 for (int j = 0; j < codedRImage[0].length; j++){
                     dataOut.writeShort(codedRImage[i][j]);
-                }
-            }
-            for (int i=0; i < codedGImage.length; i++){
-                for (int j = 0; j < codedGImage[0].length; j++){
-                    dataOut.writeShort(codedGImage[i][j]);
-                }
-            }
-            for (int i=0; i < codedBImage.length; i++){
-                for (int j = 0; j < codedBImage[0].length; j++){
                     dataOut.writeShort(codedBImage[i][j]);
+                    dataOut.writeShort(codedGImage[i][j]);
                 }
             }
         } catch (Exception e) {
