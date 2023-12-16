@@ -165,7 +165,6 @@ public class VQ_3D {
 
     public int[][] OverwriteImage(int width, int height, ArrayList<float[][]> codeBook, ArrayList<float[][]> clusters, char color) {
         int[][] newPixelArray = new int[width][height];
-        int[][] codedImage = new int[width][height];
 
         for (int i = 0; i < clusters.size(); i++) {
             float[][] cluster = clusters.get(i);
@@ -241,7 +240,8 @@ public class VQ_3D {
             pixelArrayB = OverwriteImage(WIDTH, HEIGHT, codeBookB, clustersB, 'b');
             
             String name = imageFile.getName().replaceFirst("[.][^.]+$", "");
-            WriteCompressedImage(pixelArrayR, pixelArrayG, pixelArrayB, name);
+            String extension = imageFile.getName().substring(imageFile.getName().lastIndexOf(".") + 1);
+            WriteCompressedImage(pixelArrayR, pixelArrayG, pixelArrayB, name, extension);
             SaveCompressedFile(pixelArrayR, pixelArrayG, pixelArrayB, name);
         }
         catch(Exception e){
@@ -250,8 +250,8 @@ public class VQ_3D {
     }
 
     // FOR COMPRESSED IMAGE OUTPUT
-    public void WriteCompressedImage(int[][] pixelArrayR, int[][] pixelArrayG, int[][] pixelArrayB, String name) {
-        String path = System.getProperty("user.dir") + "\\CP_"+ name + ".png";
+    public void WriteCompressedImage(int[][] pixelArrayR, int[][] pixelArrayG, int[][] pixelArrayB, String name, String extension) throws Exception {
+        String path = System.getProperty("user.dir") + "\\CP_"+ name + "." + extension;
         BufferedImage image = new BufferedImage(pixelArrayG.length, pixelArrayG[0].length, BufferedImage.TYPE_INT_RGB);
         
         for (int x = 0; x < pixelArrayG.length; x++) {
@@ -267,9 +267,9 @@ public class VQ_3D {
 
         File ImageFile = new File(path);
         try {
-            ImageIO.write(image, "png", ImageFile);
+            ImageIO.write(image, extension, ImageFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -439,7 +439,7 @@ public class VQ_3D {
         try {
             ImageIO.write(image, "png", ImageFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 }

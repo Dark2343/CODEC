@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 
 public class VQ_2D {
 
-    int KSIZE; // Number of clusters in codebook
+    int KSIZE; // Number of clusters in codeBook
     int BSIZE; // Block size
     int WIDTH, HEIGHT;
     ArrayList<float[][]> clusters = new ArrayList<float[][]>();
@@ -191,7 +191,8 @@ public class VQ_2D {
             pixelArray = OverwriteImage(WIDTH, HEIGHT);
 
             String name = imageFile.getName().replaceFirst("[.][^.]+$", "");
-            WriteCompressedImage(pixelArray, name);
+            String extension = imageFile.getName().substring(imageFile.getName().lastIndexOf(".") + 1);
+            WriteCompressedImage(pixelArray, name, extension);
             SaveCompressedFile(pixelArray, name);
         }
         catch(Exception e){
@@ -200,8 +201,8 @@ public class VQ_2D {
     }
 
     // FOR COMPRESSED IMAGE OUTPUT
-    public void WriteCompressedImage(int[][] pixelArray, String name) {
-        String path = System.getProperty("user.dir") + "\\CP_"+ name + ".png";
+    public void WriteCompressedImage(int[][] pixelArray, String name, String extension) throws Exception{
+        String path = System.getProperty("user.dir") + "\\CP_"+ name + "." + extension;
         BufferedImage image = new BufferedImage(pixelArray.length, pixelArray[0].length, BufferedImage.TYPE_BYTE_GRAY);
         for (int x = 0; x < pixelArray.length; x++) {
             for (int y = 0; y < pixelArray[0].length; y++) {
@@ -213,9 +214,9 @@ public class VQ_2D {
         
         File ImageFile = new File(path);
         try {
-            ImageIO.write(image, "png", ImageFile);
+            ImageIO.write(image, extension, ImageFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -317,7 +318,7 @@ public void SaveCompressedFile(int[][] compressedImage, String name) throws Exce
         try {
             ImageIO.write(image, "png", ImageFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 }
