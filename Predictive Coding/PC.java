@@ -10,9 +10,8 @@ import java.awt.image.BufferedImage;
 
 public class PC {
     
-    int[][] pixelArray;
-    ArrayList<Integer> differenceArray = new ArrayList<Integer>();
-    int WIDTH, HEIGHT;
+    int WIDTH, HEIGHT, MAX = Integer.MIN_VALUE, MIN = Integer.MAX_VALUE;;
+    int[][] pixelArray, differenceArray;
 
     
     public void compress(File imageFile) throws Exception{
@@ -60,38 +59,23 @@ public class PC {
     
     public void Predict(int[][] pixelArray){
 
-        for(int i = 0; i < pixelArray.length; i++){
-            for (int j = 0; j < pixelArray[0].length; j++) {
+        differenceArray = new int[WIDTH][HEIGHT];
+
+        for(int i = 1; i < pixelArray.length; i++){
+            for (int j = 1; j < pixelArray[0].length; j++) {
                 int difference, prediction;
-                
-                // So the first number gets saved
-                if (i == 0 && j == 0) {
-                    differenceArray.add(pixelArray[i][j]);
-                    continue;
-                }
-                // To do this only in the first row
-                else if (i == 0) {
-                    // To check if it's the last column
-                    prediction = (j == pixelArray[0].length - 1) ? (pixelArray[i][j - 1] + pixelArray[i + 1][j]) / 2 : (pixelArray[i][j + 1] + pixelArray[i + 1][j]) / 2;  
-                }
-                // To check if its the first column
-                else if (j == 0){
-                    // To check if it's the last row
-                    prediction = (i == pixelArray.length - 1) ? (pixelArray[i][j + 1] + pixelArray[i - 1][j]) / 2 : (pixelArray[i][j + 1] + pixelArray[i - 1][j]) / 2;  
-                }
-                else{
-                    prediction = (pixelArray[i][j - 1] + pixelArray[i - 1][j]) / 2;
-                }
+
+                prediction = (pixelArray[i][j - 1] + pixelArray[i - 1][j]) / 2;
                 difference = pixelArray[i][j] - prediction;
-                differenceArray.add(difference);
+                MAX = (difference > MAX) ? difference : MAX;
+                MIN = (difference < MIN) ? difference : MIN;
+                differenceArray[i][j] = difference;
             }
-        } 
+        }
     }
 
-    public void Quantize(ArrayList<Integer> differenceArray){
-        for(int e : differenceArray){
-
-        }
+    public void Quantize(int[][] differenceArray){
+        int steps = (MAX - MIN) / 8;   
     }
 
     // FOR COMPRESSED IMAGE OUTPUT
