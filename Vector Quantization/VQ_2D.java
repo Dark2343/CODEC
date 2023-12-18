@@ -222,9 +222,9 @@ public class VQ_2D {
 
     // FOR BINARY FILE OUTPUT
     // Modify SaveCompressedFile method
-public void SaveCompressedFile(int[][] compressedImage, String name) throws Exception {
-    String path = System.getProperty("user.dir") + "\\CP_" + name + ".bin";
-    File compressedFile = new File(path);
+    public void SaveCompressedFile(int[][] compressedImage, String name) throws Exception {
+        String path = System.getProperty("user.dir") + "\\CP_" + name + ".bin";
+        File compressedFile = new File(path);
 
 
         try (DataOutputStream dataOut = new DataOutputStream(new FileOutputStream(compressedFile))) {
