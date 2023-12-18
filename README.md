@@ -11,3 +11,11 @@ The same applies to decompression.</p>
 <h2>Assignment 3</h2>
 <p>Provide a Java implementation of the Standard Huffman compression algorithm.</p>
 <p>GUI and Binary file implementation is mandatory.</p>
+
+<h2>Assignment 4</h2>
+<p>Implement Vector quantization compression and decompression in Java on a gray scale image (RGB image is a bonus).</p>
+<p>GUI and Binary file implementation is mandatory.</p>
+
+<h2>Assignment 5</h2>
+<p></p>Implement 2D Predictive Coding compression and decompression in Java on a gray scale image.</p>
+<p>GUI and Binary file implementation is mandatory.</p>
