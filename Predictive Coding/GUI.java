@@ -85,6 +85,7 @@ public class GUI implements ActionListener {
             catch(Exception e){
                 textLabel.setBounds(195, 60, 250, 60);
                 textLabel.setText("File error");
+                e.printStackTrace();
             }
         }
         else if (actionEvent.getActionCommand().equals("Decompress")) {
@@ -98,6 +99,7 @@ public class GUI implements ActionListener {
             catch(Exception e){
                 textLabel.setBounds(195, 60, 250, 60);
                 textLabel.setText("File error");
+                e.printStackTrace();
             }
         }
     }
