@@ -206,17 +206,16 @@ public class PC {
             }
 
             String name = compressedFile.getName().replaceFirst("[.][^.]+$", "");
-            String extension = compressedFile.getName().substring(compressedFile.getName().lastIndexOf(".") + 1);
-            WriteDecompressedImage(decompressedImage, name, extension);
+            WriteDecompressedImage(decompressedImage, name);
         } catch (Exception e) {
             throw e;
         }
     }
 
 
-    public void WriteDecompressedImage(int[][] decompressedImage, String Name, String extension) throws Exception{
+    public void WriteDecompressedImage(int[][] decompressedImage, String Name) throws Exception{
         String name = Name.substring(Name.indexOf("CP_") + 3);
-        String path = System.getProperty("user.dir") + "\\DP_" + name + "." + extension;
+        String path = System.getProperty("user.dir") + "\\DP_" + name + ".jpg";
         BufferedImage image = new BufferedImage(decompressedImage.length, decompressedImage[0].length, BufferedImage.TYPE_BYTE_GRAY);
         for (int x = 0; x < decompressedImage.length; x++) {
             for (int y = 0; y < decompressedImage[0].length; y++) {
@@ -228,7 +227,7 @@ public class PC {
 
         File ImageFile = new File(path);
         try {
-            ImageIO.write(image, extension, ImageFile);
+            ImageIO.write(image, "jpg", ImageFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
