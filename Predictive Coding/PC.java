@@ -75,7 +75,38 @@ public class PC {
     }
 
     public void Quantize(int[][] differenceArray){
-        int steps = (MAX - MIN) / 8;   
+        
+        int[] levels = new int[9];
+        int steps = (MAX - MIN) / 8;
+
+        levels[0] = 0;
+        
+        for(int i = 1; i < 8; i++){
+            levels[i] = levels[i - 1] + steps;
+        }
+
+        for(int i = 1; i < differenceArray.length; i++){
+            for(int j = 1; j < differenceArray[0].length; j++){
+                int difference = differenceArray[i][j];
+                int quantizedValue = 0;
+
+                if(difference < levels[0]){
+                    quantizedValue = levels[0];
+                }
+                else if(difference > levels[7]){
+                    quantizedValue = levels[7];
+                }
+                else{
+                    for(int k = 0; k < 7; k++){
+                        if(difference >= levels[k] && difference <= levels[k + 1]){
+                            quantizedValue = levels[k + 1];
+                            break;
+                        }
+                    }
+                }
+                differenceArray[i][j] = quantizedValue;
+            }
+        }
     }
 
     // FOR COMPRESSED IMAGE OUTPUT
