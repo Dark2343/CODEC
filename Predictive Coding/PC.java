@@ -13,7 +13,7 @@ public class PC {
     int[][] pixelArray, differenceArray;
     int[][] predictedArray;
     int[] firstRow, firstColumn, levels;
-    int quantizationLevel = 32;
+    int quantizationLevel = 8;
 
 
     public void compress(File imageFile) throws Exception{
@@ -90,7 +90,8 @@ public class PC {
                 }
                 predictedArray[i][j] = prediction;
 
-                int difference =  prediction - pixelArray[i][j];
+                // int difference = pixelArray[i][j] - prediction;
+                int difference = prediction - pixelArray[i][j];
                 MAX = (difference > MAX) ? difference : MAX;
                 MIN = (difference < MIN) ? difference : MIN;
                 differenceArray[i][j] = difference;
@@ -121,10 +122,10 @@ public class PC {
                     quantizedValue = 0;
                 }
                 else if(difference > levels[quantizationLevel - 1]){
-                    quantizedValue = quantizationLevel;
+                    quantizedValue = quantizationLevel - 1;
                 }
                 else{
-                    for(int k = 0; k < quantizationLevel - 2; k++){
+                    for(int k = 0; k < quantizationLevel - 1; k++){
                         if(difference >= levels[k] && difference <= levels[k + 1]){
                             quantizedValue = k + 1;
                             break;
@@ -224,11 +225,11 @@ public class PC {
                     if(quantizedValue < levels[0]){
                         difference = levels[0];
                     }
-                    else if(quantizedValue > levels[7]){
-                        difference = levels[7];
+                    else if(quantizedValue > levels[quantizationLevel - 1]){
+                        difference = levels[quantizationLevel - 1];
                     }
                     else{
-                        for(int k = 0; k < 7; k++){
+                        for(int k = 0; k < quantizationLevel - 1; k++){
                             if(quantizedValue >= levels[k] && quantizedValue <= levels[k + 1]){
                                 difference = (levels[k + 1] + levels[k]) / 2;
                                 break;
