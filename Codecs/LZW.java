@@ -1,3 +1,4 @@
+package Codecs;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.File;
@@ -8,9 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
-public class LZW{
+import src.EncodingAlgorithm;
+
+public class LZW implements EncodingAlgorithm{
     
-    public void compress(File textFile) throws Exception {
+    @Override
+    public void Compress(File textFile) throws Exception {
         try{
             ArrayList<Integer> compressedData = new ArrayList<>();
             // First read all file contents
@@ -50,7 +54,8 @@ public class LZW{
         catch (Exception e) {throw e;}
     }
 
-    public void decompress(File textFile) throws Exception {
+    @Override
+    public void Decompress(File textFile) throws Exception {
         try{
             List<Integer> compressedData = readCompressedFile(textFile);
             HashMap<Integer, String> reverseDictionary = createReverseDictionary();
@@ -127,7 +132,6 @@ public class LZW{
             reader.close();
             return compressedData;
         } catch (Exception e) {throw e;}
-
     }
 
     private void writeDecompressedFile(String decompressedData) throws IOException{

@@ -1,10 +1,13 @@
+package Codecs;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-public class VQ_3D {
+import src.EncodingAlgorithm;
+
+public class VQ_3D implements EncodingAlgorithm{
     
     int KSIZE; // Number of clusters in codeBook
     int BSIZE; // Block size
@@ -214,7 +217,8 @@ public class VQ_3D {
         return newPixelArray;
     }
 
-    public void compress(File imageFile, int kSize, int blockSize) throws Exception{
+    @Override
+    public void Compress(File imageFile, int kSize, int blockSize) throws Exception{
         try{
             KSIZE = kSize;
             BSIZE = blockSize;
@@ -329,8 +333,8 @@ public class VQ_3D {
         }
     }
 
-    // Modify decompress method
-    public void decompress(File compressedFile) throws Exception {
+    @Override
+    public void Decompress(File compressedFile) throws Exception {
         try (DataInputStream dataIn = new DataInputStream(new FileInputStream(compressedFile))) {
             KSIZE = dataIn.readShort();
             BSIZE = dataIn.readShort();

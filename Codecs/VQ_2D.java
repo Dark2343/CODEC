@@ -1,14 +1,16 @@
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+package Codecs;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import java.io.IOException;
+import src.EncodingAlgorithm;
+import java.io.FileInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.awt.image.BufferedImage;
 
-public class VQ_2D {
+public class VQ_2D implements EncodingAlgorithm {
 
     int KSIZE; // Number of clusters in codeBook
     int BSIZE; // Block size
@@ -180,7 +182,8 @@ public class VQ_2D {
         return newPixelArray;
     }
 
-    public void compress(File imageFile, int kSize, int blockSize) throws Exception{
+    @Override
+    public void Compress(File imageFile, int kSize, int blockSize) throws Exception{
         try{
             KSIZE = kSize;
             BSIZE = blockSize;
@@ -255,7 +258,8 @@ public class VQ_2D {
         }
     }
 
-    public void decompress(File compressedFile) throws Exception {
+    @Override
+    public void Decompress(File compressedFile) throws Exception {
         try (DataInputStream dataIn = new DataInputStream(new FileInputStream(compressedFile))) {
             KSIZE = dataIn.readShort();
             BSIZE = dataIn.readShort();

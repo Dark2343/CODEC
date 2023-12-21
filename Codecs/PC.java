@@ -1,22 +1,21 @@
+package Codecs;
 import java.io.File;
+import javax.imageio.ImageIO;
+import src.EncodingAlgorithm;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
-public class PC {
+public class PC implements EncodingAlgorithm {
 
-    int WIDTH, HEIGHT, MAX = Integer.MIN_VALUE, MIN = Integer.MAX_VALUE;;
-    int[][] pixelArray, differenceArray;
-    int[][] predictedArray;
+    int WIDTH, HEIGHT, MAX = Integer.MIN_VALUE, MIN = Integer.MAX_VALUE, quantizationLevel = 8;
+    int[][] pixelArray, differenceArray, predictedArray;
     int[] firstRow, firstColumn, levels;
-    int quantizationLevel = 8;
 
-
-    public void compress(File imageFile) throws Exception{
+    @Override
+    public void Compress(File imageFile) throws Exception{
         try{
             ProcessGrayScaleImage(imageFile);
             Predict(pixelArray);
@@ -179,7 +178,8 @@ public class PC {
         }
     }
 
-    public void decompress(File compressedFile) throws Exception {
+    @Override
+    public void Decompress(File compressedFile) throws Exception {
         try (ObjectInputStream dataIn = new ObjectInputStream(new FileInputStream(compressedFile))) {
             WIDTH = dataIn.readInt();
             HEIGHT = dataIn.readInt();
