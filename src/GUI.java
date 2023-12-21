@@ -1,7 +1,6 @@
 package src;
 
 import java.io.File;
-import java.util.Vector;
 import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -12,6 +11,8 @@ import javax.swing.JFileChooser;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import Codecs.PC;
 
 
 public class GUI implements ActionListener {

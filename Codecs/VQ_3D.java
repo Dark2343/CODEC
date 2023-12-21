@@ -12,6 +12,8 @@ public class VQ_3D implements EncodingAlgorithm{
     int KSIZE; // Number of clusters in codeBook
     int BSIZE; // Block size
     int HEIGHT, WIDTH;
+    int[][] codedRImage, codedGImage, codedBImage;
+
     ArrayList<float[][]> clustersR = new ArrayList<float[][]>();
     ArrayList<float[][]> clustersG = new ArrayList<float[][]>();
     ArrayList<float[][]> clustersB = new ArrayList<float[][]>();
@@ -20,9 +22,11 @@ public class VQ_3D implements EncodingAlgorithm{
     ArrayList<float[][]> codeBookG = new ArrayList<float[][]>();
     ArrayList<float[][]> codeBookB = new ArrayList<float[][]>();
 
-    int[][] codedRImage;
-    int[][] codedGImage;
-    int[][] codedBImage;
+
+    public VQ_3D(int kSize, int blockSize){
+        this.KSIZE = kSize;
+        this.BSIZE = blockSize;
+    }
 
     public ArrayList<int[][]> ProcessRGBImage(File imageFile) throws Exception {
         try{
@@ -212,16 +216,12 @@ public class VQ_3D implements EncodingAlgorithm{
                 }
             }
         }
-
-    
         return newPixelArray;
     }
 
     @Override
-    public void Compress(File imageFile, int kSize, int blockSize) throws Exception{
+    public void Compress(File imageFile) throws Exception{
         try{
-            KSIZE = kSize;
-            BSIZE = blockSize;
             ArrayList<int[][]> rgbArrayList = ProcessRGBImage(imageFile); 
             int[][] pixelArrayR = rgbArrayList.get(0);
             int[][] pixelArrayG = rgbArrayList.get(1);

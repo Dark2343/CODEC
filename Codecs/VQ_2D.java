@@ -19,6 +19,11 @@ public class VQ_2D implements EncodingAlgorithm {
     ArrayList<float[][]> codeBook = new ArrayList<float[][]>();
     int [][] codedImage;
     
+    public VQ_2D(int kSize, int blockSize){
+        this.KSIZE = kSize;
+        this.BSIZE = blockSize;
+    }
+
     public int[][] ProcessGrayScaleImage(File imageFile) throws Exception {
         try{
             BufferedImage img = ImageIO.read(imageFile);
@@ -183,10 +188,8 @@ public class VQ_2D implements EncodingAlgorithm {
     }
 
     @Override
-    public void Compress(File imageFile, int kSize, int blockSize) throws Exception{
+    public void Compress(File imageFile) throws Exception{
         try{
-            KSIZE = kSize;
-            BSIZE = blockSize;
             int[][] pixelArray = ProcessGrayScaleImage(imageFile);
             
             GenerateClusters(pixelArray);
