@@ -1,10 +1,7 @@
-package Codecs;
 import java.io.*;
 import java.util.*;
 
-import src.EncodingAlgorithm;
-
-public class Huffman implements EncodingAlgorithm{
+public class Huffman {
     Node root;
     ArrayList<Node> frequencyTable = new ArrayList<>();
     HashMap<Character, String> codedTable = new HashMap<>();
@@ -128,16 +125,15 @@ public class Huffman implements EncodingAlgorithm{
         }
     }
 
-    @Override
-    public void Compress(File textFile){
+    public void compress(File textFile){
         BuildFrequencyTable(textFile);
         BuildHuffmanTree();
         BuildCodedTable(root, "");
         ReadToWriteText(textFile);
     }
 
-    @Override
-    public void Decompress(File textFile) {
+
+    public void decompress(File textFile) {
         try(DataInputStream dataIn = new DataInputStream(new FileInputStream(textFile))){
             int tableLength = dataIn.readByte();
             for (int i = 0; i < tableLength; i++) {
