@@ -1,6 +1,7 @@
 package src;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,6 +25,8 @@ public class GUI implements ActionListener {
     JButton compress = new JButton();
     JButton decompress = new JButton();
     JFrame frame = new JFrame("Codec");
+    String algos[] = {"LZ77", "LZW", "Huffman Coding", "Vector Quantization", "2D Predictive Coding"};
+    final JComboBox<String> algorithms = new JComboBox<>(algos);
     JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir")); // GUI to select files
     FileNameExtensionFilter imageFilter = new FileNameExtensionFilter("Image Files", "png", "jpg", "jpeg"); // Filter to choose specific files only
     FileNameExtensionFilter binaryFilter = new FileNameExtensionFilter("Binary Files", "bin");
@@ -39,9 +42,10 @@ public class GUI implements ActionListener {
         
         textLabel.setBounds(199, 80, 300, 60);
         textLabel.setFont(new Font("", Font.BOLD, 16));
-        select.setBounds(150, 210, 100, 30);
+        select.setBounds(420, 50, 100, 30);
         compress.setBounds(300, 210, 100, 30);
         decompress.setBounds(300, 210, 110, 30);
+        algorithms.setBounds(300, 50, 130, 30);
 
         // Listens for button press and calls actionPerformed()
         select.addActionListener(this);
@@ -52,6 +56,7 @@ public class GUI implements ActionListener {
         panel.add(select);
         panel.add(compress);
         panel.add(decompress);
+        panel.add(algorithms);
 
         // Hides buttons till you select a file
         compress.setVisible(false);
@@ -61,8 +66,7 @@ public class GUI implements ActionListener {
         frame.setSize(570, 300);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-        
+        frame.setVisible(true);        
     }
     
     public void actionPerformed(ActionEvent actionEvent){
