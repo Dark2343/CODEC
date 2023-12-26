@@ -2,9 +2,9 @@ package Codecs;
 import java.io.*;
 import java.util.*;
 
-import src.EncodingAlgorithm;
+import src.CodecType;
 
-public class Huffman implements EncodingAlgorithm{
+public class Huffman implements CodecType{
     Node root;
     ArrayList<Node> frequencyTable = new ArrayList<>();
     HashMap<Character, String> codedTable = new HashMap<>();

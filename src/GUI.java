@@ -87,7 +87,7 @@ public class GUI implements ActionListener {
         }
         else if (actionEvent.getActionCommand().equals("Compress")) {
             try{
-                EncodingAlgorithm encoder = new PC();
+                CodecType encoder = new PC();
                 encoder.Compress(imageFile);
                 
                 textLabel.setBounds(197, 60, 250, 60);
@@ -101,7 +101,7 @@ public class GUI implements ActionListener {
         }
         else if (actionEvent.getActionCommand().equals("Decompress")) {
             try{
-                EncodingAlgorithm encoder = new PC();
+                CodecType encoder = new PC();
                 encoder.Decompress(imageFile);
 
                 textLabel.setBounds(190, 60, 250, 60);

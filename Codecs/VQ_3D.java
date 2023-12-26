@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import src.EncodingAlgorithm;
+import src.CodecType;
 
-public class VQ_3D implements EncodingAlgorithm{
+public class VQ_3D implements CodecType{
     
     int KSIZE; // Number of clusters in codeBook
     int BSIZE; // Block size

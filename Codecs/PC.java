@@ -1,14 +1,14 @@
 package Codecs;
 import java.io.File;
 import javax.imageio.ImageIO;
-import src.EncodingAlgorithm;
+import src.CodecType;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.awt.image.BufferedImage;
 
-public class PC implements EncodingAlgorithm {
+public class PC implements CodecType {
 
     int WIDTH, HEIGHT, MAX = Integer.MIN_VALUE, MIN = Integer.MAX_VALUE, quantizationLevel = 8;
     int[][] pixelArray, differenceArray, predictedArray;

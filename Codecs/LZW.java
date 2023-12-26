@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
-import src.EncodingAlgorithm;
+import src.CodecType;
 
-public class LZW implements EncodingAlgorithm{
+public class LZW implements CodecType{
     
     @Override
     public void Compress(File textFile) throws Exception {

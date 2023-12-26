@@ -3,14 +3,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import src.EncodingAlgorithm;
+import src.CodecType;
 import java.io.FileInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.awt.image.BufferedImage;
 
-public class VQ_2D implements EncodingAlgorithm {
+public class VQ_2D implements CodecType {
 
     int KSIZE; // Number of clusters in codeBook
     int BSIZE; // Block size
